@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Waiting Screen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="aurora aurora-a"></div>
+      <div class="aurora aurora-b"></div>
+
+      <section class="panel config-panel" id="configPanel">
+        <p class="eyebrow">Meeting Room</p>
+        <h1 id="titlePreview">Weekly Sync Starts Soon</h1>
+        <p class="subtitle">
+          Configure your waiting screen, then press start to switch to fullscreen
+          countdown mode.
+        </p>
+
+        <form id="configForm" class="form-grid" autocomplete="off">
+          <label>
+            Meeting title
+            <input
+              id="meetingTitle"
+              type="text"
+              maxlength="70"
+              value="Weekly Sync Starts Soon"
+              placeholder="Type your meeting title"
+              required
+            />
+          </label>
+
+          <label>
+            Countdown (minutes)
+            <input
+              id="meetingMinutes"
+              type="number"
+              min="1"
+              max="180"
+              value="5"
+              required
+            />
+          </label>
+
+          <button id="startBtn" type="submit">Start Waiting Screen</button>
+        </form>
+      </section>
+
+      <section class="panel waiting-panel hidden" id="waitingPanel">
+        <p class="badge">Meeting starts in</p>
+        <h2 id="meetingTitleDisplay">Weekly Sync Starts Soon</h2>
+        <p id="countdownDisplay" class="timer">05:00</p>
+        <button id="resetBtn" type="button" class="ghost">Back to setup</button>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

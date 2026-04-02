@@ -17,10 +17,6 @@ function startMeetActivityTracker() {
 
   const poll = () => {
     const currentNames = readParticipantNames();
-    if (!currentNames.length) {
-      return;
-    }
-
     const currentSet = new Set(currentNames);
     const joined = currentNames.filter((name) => !previousSet.has(name));
     const left = [...previousSet].filter((name) => !currentSet.has(name));
@@ -66,19 +62,28 @@ function readParticipantNames() {
     '[data-participant-id][aria-label]',
     '[data-self-name]',
     '[role="listitem"] [aria-label]',
+    '[data-participant-id] [data-name]',
+    '[role="listitem"] [data-name]',
   ];
 
-  const names = selectors.flatMap((selector) =>
-    Array.from(document.querySelectorAll(selector))
-      .map((el) =>
-        normalizeParticipantName(
-          el.getAttribute('data-self-name') || el.getAttribute('aria-label') || ''
-        )
-      )
-      .filter(Boolean)
-  );
+  const names = selectors.flatMap((selector) => {
+    return Array.from(document.querySelectorAll(selector))
+      .map((el) => {
+        const raw =
+          el.getAttribute('data-name') ||
+          el.getAttribute('data-self-name') ||
+          el.getAttribute('aria-label') ||
+          '';
+        return normalizeParticipantName(raw);
+      })
+      .filter(Boolean);
+  });
 
-  return [...new Set(names)].slice(0, 100);
+  const inferredSelfNames = Array.from(document.querySelectorAll('[aria-label]'))
+    .map((el) => extractNameFromAriaLabel(el.getAttribute('aria-label') || ''))
+    .filter(Boolean);
+
+  return [...new Set([...names, ...inferredSelfNames])].slice(0, 100);
 }
 
 function normalizeParticipantName(value) {
@@ -99,4 +104,34 @@ function normalizeParticipantName(value) {
   }
 
   return clean;
+}
+
+function extractNameFromAriaLabel(value) {
+  if (!value) {
+    return '';
+  }
+
+  const trimmed = value.trim();
+  const youPatterns = [
+    /\(You\)/i,
+    /\bYou\b/i,
+    /\(Tu\)/i,
+    /\bTú\b/i,
+    /\(Vous\)/i,
+  ];
+
+  if (!youPatterns.some((pattern) => pattern.test(trimmed))) {
+    return '';
+  }
+
+  const stripped = trimmed
+    .replace(/\(You\)/gi, '')
+    .replace(/\bYou\b/gi, '')
+    .replace(/\(Tu\)/gi, '')
+    .replace(/\bTú\b/gi, '')
+    .replace(/\(Vous\)/gi, '')
+    .replace(/,\s*$/g, '')
+    .trim();
+
+  return normalizeParticipantName(stripped);
 }

@@ -153,6 +153,34 @@ When the extension detects participant changes, it sends events as:
 
 It also sends participant snapshots so the web page can show the current user list.
 
+### Quick example: auto-update the web list when someone joins
+
+If your goal is: **"When someone joins the current Meet, update the list on the waiting-screen web page automatically"**, this project already supports that flow.
+
+Use this exact test:
+
+1. Start the waiting screen (`http://localhost:4173`) and click **Start Waiting Screen**.
+2. Open Google Meet in another tab and open the **People** panel.
+3. Keep both tabs open at the same time.
+4. Ask another person to join the Meet.
+5. Within a few seconds, you should see:
+   - the participant appear in the **Current in meeting** list
+   - a new `joined` line in the recent events list
+   - joined/left counters update
+
+Why it works:
+
+- `chrome-extension/content.js` reads participant names every 3 seconds.
+- It sends join/left events and participant snapshots to `chrome-extension/background.js`.
+- The background script forwards those messages to your waiting-screen tab.
+- `script.js` receives the message and re-renders the participant list in real time.
+
+If the list does not update, check:
+
+- waiting-screen URL in extension popup matches your page URL origin
+- Meet tab + waiting-screen tab are both open
+- Meet **People** panel is open (needed for reliable detection)
+
 ### Notes and limitations
 
 - Google Meet's internal DOM can change at any time, which may affect detection reliability.

@@ -1,6 +1,7 @@
 const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
+const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
 const webhookUrlInput = document.getElementById('meetWebhookUrl');
 const webhookTokenInput = document.getElementById('meetWebhookToken');
@@ -28,6 +29,7 @@ let endTime = null;
 let timerId = null;
 let lastRenderedTime = '05:00';
 let selectedAudioUrl = null;
+let localAudioUrl = null;
 let backgroundAudio = null;
 let joinedCount = 0;
 let leftCount = 0;
@@ -64,6 +66,10 @@ const setTimerDigits = (formattedTime) => {
     void el.offsetWidth;
     el.classList.add('digit-change');
   });
+};
+
+const syncSelectedAudio = () => {
+  selectedAudioUrl = localAudioUrl || musicPresetInput.value || null;
 };
 
 const setBarProgress = (secondsLeft) => {
@@ -299,25 +305,32 @@ form.addEventListener('submit', (event) => {
   startCountdown(meetingTitle, minutes, webhookUrl, webhookToken);
 });
 
+musicPresetInput.addEventListener('change', () => {
+  syncSelectedAudio();
+});
+
 musicInput.addEventListener('change', () => {
   const [selectedFile] = musicInput.files || [];
 
-  if (selectedAudioUrl) {
-    URL.revokeObjectURL(selectedAudioUrl);
-    selectedAudioUrl = null;
+  if (localAudioUrl) {
+    URL.revokeObjectURL(localAudioUrl);
+    localAudioUrl = null;
   }
 
-  if (!selectedFile) {
-    return;
+  if (selectedFile) {
+    localAudioUrl = URL.createObjectURL(selectedFile);
   }
 
-  selectedAudioUrl = URL.createObjectURL(selectedFile);
+  syncSelectedAudio();
 });
 
 window.addEventListener('beforeunload', () => {
   stopWebhookPolling();
   stopBackgroundAudio();
-  if (selectedAudioUrl) {
-    URL.revokeObjectURL(selectedAudioUrl);
+
+  if (localAudioUrl) {
+    URL.revokeObjectURL(localAudioUrl);
   }
 });
+
+syncSelectedAudio();

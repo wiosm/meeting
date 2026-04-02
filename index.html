@@ -56,6 +56,24 @@
             <input id="meetingMusic" type="file" accept="audio/mpeg,audio/mp3" />
           </label>
 
+          <label>
+            Meet event feed URL (from your webhook relay)
+            <input
+              id="meetWebhookUrl"
+              type="url"
+              placeholder="https://your-backend.example.com/api/meet-events"
+            />
+          </label>
+
+          <label>
+            Event feed token (optional)
+            <input
+              id="meetWebhookToken"
+              type="password"
+              placeholder="Bearer token or shared secret"
+            />
+          </label>
+
           <button id="startBtn" type="submit">Start Waiting Screen</button>
         </form>
       </section>
@@ -83,7 +101,17 @@
           Stream intro mode active • Audio check • Camera check • Screen share ready
         </p>
 
-        <button id="resetBtn" type="button" class="ghost">Back to setup</button>
+        <section class="presence-panel" aria-live="polite">
+          <p class="presence-title">Meet attendance activity</p>
+          <p class="presence-status" id="presenceStatus">
+            No event feed connected yet.
+          </p>
+          <p class="presence-counts">
+            Joined: <span id="joinedCount">0</span> • Left: <span id="leftCount">0</span>
+          </p>
+          <ul id="presenceEvents" class="presence-events"></ul>
+        </section>
+
       </section>
     </main>
 

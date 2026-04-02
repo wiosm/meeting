@@ -2,14 +2,19 @@ const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
 const musicInput = document.getElementById('meetingMusic');
+const webhookUrlInput = document.getElementById('meetWebhookUrl');
+const webhookTokenInput = document.getElementById('meetWebhookToken');
 const titlePreview = document.getElementById('titlePreview');
 const waitingTitle = document.getElementById('meetingTitleDisplay');
 const countdownDisplay = document.getElementById('countdownDisplay');
 const barProgress = document.getElementById('barProgress');
 const configPanel = document.getElementById('configPanel');
 const waitingPanel = document.getElementById('waitingPanel');
-const resetBtn = document.getElementById('resetBtn');
 const tickerText = document.getElementById('tickerText');
+const presenceStatus = document.getElementById('presenceStatus');
+const presenceEvents = document.getElementById('presenceEvents');
+const joinedCountEl = document.getElementById('joinedCount');
+const leftCountEl = document.getElementById('leftCount');
 
 const digitMap = {
   m1: countdownDisplay.querySelector('[data-digit="m1"]'),
@@ -24,6 +29,10 @@ let timerId = null;
 let lastRenderedTime = '05:00';
 let selectedAudioUrl = null;
 let backgroundAudio = null;
+let joinedCount = 0;
+let leftCount = 0;
+let knownEventIds = new Set();
+let webhookPollId = null;
 
 const toMMSS = (secondsLeft) => {
   const mins = Math.floor(secondsLeft / 60)
@@ -127,7 +136,126 @@ const openFullscreen = async () => {
   }
 };
 
-const startCountdown = (meetingTitle, minutes) => {
+const normalizeEvents = (payload) => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (payload && Array.isArray(payload.events)) {
+    return payload.events;
+  }
+
+  return [];
+};
+
+const formatEventTime = (timestamp) => {
+  if (!timestamp) {
+    return 'now';
+  }
+
+  const parsed = new Date(timestamp);
+  if (Number.isNaN(parsed.getTime())) {
+    return 'now';
+  }
+
+  return parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+};
+
+const appendPresenceEvent = (event) => {
+  const type = (event.type || '').toLowerCase();
+  const person = event.name || event.displayName || 'Someone';
+  const eventId = event.id || `${type}:${person}:${event.timestamp || Date.now()}`;
+
+  if (knownEventIds.has(eventId)) {
+    return;
+  }
+  knownEventIds.add(eventId);
+
+  if (type === 'joined') {
+    joinedCount += 1;
+  } else if (type === 'left') {
+    leftCount += 1;
+  } else {
+    return;
+  }
+
+  joinedCountEl.textContent = String(joinedCount);
+  leftCountEl.textContent = String(leftCount);
+
+  const item = document.createElement('li');
+  const verb = type === 'joined' ? 'joined' : 'left';
+  item.textContent = `${person} ${verb} • ${formatEventTime(event.timestamp)}`;
+  presenceEvents.prepend(item);
+
+  while (presenceEvents.childElementCount > 20) {
+    presenceEvents.removeChild(presenceEvents.lastElementChild);
+  }
+};
+
+const resetPresence = () => {
+  joinedCount = 0;
+  leftCount = 0;
+  knownEventIds = new Set();
+  joinedCountEl.textContent = '0';
+  leftCountEl.textContent = '0';
+  presenceEvents.textContent = '';
+  presenceStatus.textContent = 'No event feed connected yet.';
+};
+
+const stopWebhookPolling = () => {
+  if (!webhookPollId) {
+    return;
+  }
+
+  clearInterval(webhookPollId);
+  webhookPollId = null;
+};
+
+const fetchWebhookEvents = async (url, token) => {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const response = await fetch(url, {
+    method: 'GET',
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Feed request failed with ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const events = normalizeEvents(payload);
+  events.forEach(appendPresenceEvent);
+
+  presenceStatus.textContent = `Connected to feed • Last checked ${formatEventTime(new Date())}`;
+};
+
+const startWebhookPolling = (url, token) => {
+  stopWebhookPolling();
+
+  if (!url) {
+    presenceStatus.textContent = 'No event feed connected yet.';
+    return;
+  }
+
+  presenceStatus.textContent = 'Connecting to event feed...';
+
+  const runFetch = async () => {
+    try {
+      await fetchWebhookEvents(url, token);
+    } catch (error) {
+      console.warn('Event feed error:', error);
+      presenceStatus.textContent =
+        'Feed connection failed. Check URL/token or backend availability.';
+    }
+  };
+
+  void runFetch();
+  webhookPollId = setInterval(() => {
+    void runFetch();
+  }, 5000);
+};
+
+const startCountdown = (meetingTitle, minutes, webhookUrl, webhookToken) => {
   waitingTitle.textContent = meetingTitle;
   tickerText.textContent = `${meetingTitle} • Audio check • Camera check • Screen share ready`;
   document.title = `${meetingTitle} · Waiting Screen`;
@@ -145,25 +273,9 @@ const startCountdown = (meetingTitle, minutes) => {
   clearInterval(timerId);
   timerId = setInterval(updateTimer, 250);
   void startBackgroundAudio();
+  startWebhookPolling(webhookUrl, webhookToken);
 
   void openFullscreen();
-};
-
-const reset = () => {
-  clearInterval(timerId);
-  timerId = null;
-  totalSeconds = 5 * 60;
-  stopBackgroundAudio();
-
-  configPanel.classList.remove('hidden');
-  waitingPanel.classList.add('hidden');
-
-  setTimerDigits('05:00');
-  setBarProgress(totalSeconds);
-  lastRenderedTime = '05:00';
-  tickerText.textContent =
-    'Stream intro mode active • Audio check • Camera check • Screen share ready';
-  document.title = 'Meeting Waiting Screen';
 };
 
 titleInput.addEventListener('input', () => {
@@ -175,13 +287,16 @@ form.addEventListener('submit', (event) => {
 
   const meetingTitle = titleInput.value.trim() || 'Meeting Starts Soon';
   const minutes = Number.parseInt(minutesInput.value, 10);
+  const webhookUrl = webhookUrlInput.value.trim();
+  const webhookToken = webhookTokenInput.value.trim();
 
   if (!minutes || minutes < 1) {
     minutesInput.focus();
     return;
   }
 
-  startCountdown(meetingTitle, minutes);
+  resetPresence();
+  startCountdown(meetingTitle, minutes, webhookUrl, webhookToken);
 });
 
 musicInput.addEventListener('change', () => {
@@ -199,9 +314,8 @@ musicInput.addEventListener('change', () => {
   selectedAudioUrl = URL.createObjectURL(selectedFile);
 });
 
-resetBtn.addEventListener('click', reset);
-
 window.addEventListener('beforeunload', () => {
+  stopWebhookPolling();
   stopBackgroundAudio();
   if (selectedAudioUrl) {
     URL.revokeObjectURL(selectedAudioUrl);

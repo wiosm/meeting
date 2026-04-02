@@ -39,6 +39,26 @@ body {
   overflow: hidden;
 }
 
+.bg-motion-layer {
+  position: absolute;
+  inset: -35%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  background: conic-gradient(
+      from 0deg at 25% 32%,
+      rgba(80, 236, 255, 0.35),
+      rgba(167, 113, 255, 0.18),
+      rgba(255, 77, 141, 0.28),
+      rgba(94, 255, 181, 0.22),
+      rgba(80, 236, 255, 0.35)
+    ),
+    radial-gradient(circle at 70% 65%, rgba(140, 161, 255, 0.28), transparent 52%);
+  filter: blur(50px) saturate(125%);
+  transform-origin: 50% 50%;
+  animation: bgOrbit 28s linear infinite, bgPulse 12s ease-in-out infinite;
+}
+
 .liquid-bg {
   position: absolute;
   width: 120vmax;
@@ -82,6 +102,7 @@ body {
   background-size: 44px 44px;
   mask-image: radial-gradient(circle at 50% 50%, black 35%, transparent 90%);
   pointer-events: none;
+  animation: gridDrift 20s linear infinite;
 }
 
 .sparkle-overlay {
@@ -588,6 +609,37 @@ button {
   }
   50% {
     background-position: 100% 50%;
+  }
+}
+
+@keyframes bgOrbit {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.08);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes bgPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@keyframes gridDrift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(22px, 16px, 0);
   }
 }
 

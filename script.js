@@ -54,7 +54,7 @@ const formatTitle = (rawTitle, format) => {
     .trim();
 
   if (!normalized) {
-    return 'Weekly Sync\nStarts Soon';
+    return 'iOS Dailiy Standup';
   }
 
   if (format === 'uppercase') {
@@ -89,7 +89,7 @@ const parseLineSizes = (lineSizesText, lineCount) => {
 
 const renderTitleWithSizes = (target, formattedTitle, lineSizesText) => {
   const lines = formattedTitle.split('\n').filter((line) => line.trim().length > 0);
-  const safeLines = lines.length ? lines : ['Weekly Sync', 'Starts Soon'];
+  const safeLines = lines.length ? lines : ['iOS Dailiy Standup'];
   const sizes = parseLineSizes(lineSizesText, safeLines.length);
 
   target.innerHTML = '';

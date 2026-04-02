@@ -19,8 +19,7 @@ body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
   background: radial-gradient(circle at 20% 20%, #182d6f 0, transparent 42%),
-    radial-gradient(circle at 82% 18%, #4b1e75 0, transparent 44%),
-    var(--bg);
+    radial-gradient(circle at 82% 18%, #4b1e75 0, transparent 44%), var(--bg);
 }
 
 .app-shell {
@@ -60,19 +59,27 @@ body {
 
 @keyframes floatA {
   0%,
-  100% { transform: translate(0, 0); }
-  50% { transform: translate(35px, -24px); }
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(35px, -24px);
+  }
 }
 
 @keyframes floatB {
   0%,
-  100% { transform: translate(0, 0); }
-  50% { transform: translate(-28px, 35px); }
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-28px, 35px);
+  }
 }
 
 .panel {
   position: relative;
-  width: min(800px, 100%);
+  width: min(900px, 100%);
   border: 1px solid var(--panel-border);
   background: var(--panel);
   backdrop-filter: blur(12px);
@@ -153,42 +160,115 @@ button:hover {
 
 .waiting-panel {
   text-align: center;
-  min-height: min(72vh, 700px);
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  padding-block: clamp(1.2rem, 2.8vw, 2.3rem);
+}
+
+.waiting-title {
+  max-width: 18ch;
+}
+
+.waiting-subtitle {
+  margin: 0;
+  color: var(--muted);
+}
+
+.countdown-stage {
+  margin: 0.6rem 0 0.8rem;
+  width: min(82vw, 440px);
+  aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
   position: relative;
 }
 
+.progress-ring-wrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 10px 26px rgba(88, 140, 255, 0.32));
+}
+
+.ring-track,
+.ring-progress {
+  fill: none;
+  stroke-width: 10;
+}
+
+.ring-track {
+  stroke: rgba(255, 255, 255, 0.14);
+}
+
+.ring-progress {
+  stroke: #88c7ff;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.35s ease;
+}
+
 .timer {
   margin: 0;
-  font-size: clamp(3rem, 14vw, 8.5rem);
+  font-size: clamp(2.8rem, 10vw, 4.4rem);
   line-height: 1;
   font-weight: 800;
-  letter-spacing: 0.04em;
-  text-shadow: 0 5px 26px rgba(0, 0, 0, 0.35);
-  position: absolute;
-  right: clamp(1.1rem, 3vw, 2rem);
-  bottom: clamp(1rem, 2.6vw, 1.9rem);
-  transform-origin: bottom right;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
+  text-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);
 }
 
-.timer-change {
-  animation: timerPulse 420ms cubic-bezier(0.22, 1, 0.36, 1);
+.digit {
+  min-width: 0.66em;
+  display: inline-grid;
+  place-items: center;
+  padding: 0.16em 0.06em;
+  border-radius: 0.2em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-@keyframes timerPulse {
-  0% {
-    opacity: 0.45;
-    transform: translateY(14px) scale(0.95);
-    filter: blur(4px);
+.colon {
+  opacity: 0.88;
+  animation: blink 1s steps(1, end) infinite;
+}
+
+@keyframes blink {
+  0%,
+  42% {
+    opacity: 0.9;
   }
-  55% {
+  52%,
+  100% {
+    opacity: 0.2;
+  }
+}
+
+.digit-change {
+  animation: flipIn 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes flipIn {
+  0% {
+    transform: translateY(10px) rotateX(-76deg);
+    opacity: 0.25;
+    filter: blur(2px);
+  }
+  50% {
     opacity: 1;
-    transform: translateY(-3px) scale(1.04);
-    filter: blur(0);
   }
   100% {
-    transform: translateY(0) scale(1);
+    transform: translateY(0) rotateX(0deg);
+    filter: blur(0);
   }
 }
 
@@ -202,7 +282,8 @@ button:hover {
     border-radius: 16px;
   }
 
-  .subtitle {
+  .subtitle,
+  .waiting-subtitle {
     font-size: 0.92rem;
   }
 }

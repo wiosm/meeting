@@ -55,9 +55,33 @@
       </section>
 
       <section class="panel waiting-panel hidden" id="waitingPanel">
-        <p class="badge">Meeting starts in</p>
-        <h2 id="meetingTitleDisplay">Weekly Sync Starts Soon</h2>
-        <p id="countdownDisplay" class="timer">05:00</p>
+        <p class="badge">Starting in</p>
+        <h2 id="meetingTitleDisplay" class="waiting-title">Weekly Sync Starts Soon</h2>
+        <p class="waiting-subtitle">Get ready to join — your meeting room opens shortly.</p>
+
+        <div class="countdown-stage">
+          <div class="progress-ring-wrap" aria-hidden="true">
+            <svg class="progress-ring" viewBox="0 0 240 240">
+              <circle class="ring-track" cx="120" cy="120" r="102"></circle>
+              <circle
+                class="ring-progress"
+                id="ringProgress"
+                cx="120"
+                cy="120"
+                r="102"
+              ></circle>
+            </svg>
+          </div>
+
+          <p id="countdownDisplay" class="timer" aria-live="polite">
+            <span class="digit" data-digit="m1">0</span>
+            <span class="digit" data-digit="m2">5</span>
+            <span class="colon">:</span>
+            <span class="digit" data-digit="s1">0</span>
+            <span class="digit" data-digit="s2">0</span>
+          </p>
+        </div>
+
         <button id="resetBtn" type="button" class="ghost">Back to setup</button>
       </section>
     </main>

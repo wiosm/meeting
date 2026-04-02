@@ -39,6 +39,7 @@ let joinedCount = 0;
 let leftCount = 0;
 let knownEventIds = new Set();
 let extensionPresenceActive = false;
+let hasReceivedPresenceEvent = false;
 
 const formatTitle = (rawTitle, format) => {
   const normalized = rawTitle
@@ -233,6 +234,7 @@ const appendPresenceEvent = (event) => {
   } else {
     return;
   }
+  hasReceivedPresenceEvent = true;
 
   joinedCountEl.textContent = String(joinedCount);
   leftCountEl.textContent = String(leftCount);
@@ -267,6 +269,7 @@ const resetPresence = () => {
   joinedCount = 0;
   leftCount = 0;
   knownEventIds = new Set();
+  hasReceivedPresenceEvent = false;
   joinedCountEl.textContent = '0';
   leftCountEl.textContent = '0';
   presenceEvents.textContent = '';
@@ -312,6 +315,11 @@ const renderPresencePeople = (participants) => {
     item.textContent = name;
     presencePeople.append(item);
   });
+
+  if (!hasReceivedPresenceEvent && joinedCount === 0 && normalized.length > 0) {
+    joinedCount = normalized.length;
+    joinedCountEl.textContent = String(joinedCount);
+  }
 };
 
 const setPresenceVisibility = () => {

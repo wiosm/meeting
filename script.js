@@ -431,16 +431,5 @@ window.addEventListener('beforeunload', () => {
 
 window.addEventListener('message', handleExtensionPresenceMessage);
 
-window.addEventListener('pointermove', (event) => {
-  const x = (event.clientX / window.innerWidth) * 100;
-  const y = (event.clientY / window.innerHeight) * 100;
-  const driftX = ((x - 50) / 50) * 18;
-  const driftY = ((y - 50) / 50) * 14;
-  document.body.style.setProperty('--mx', `${x.toFixed(1)}%`);
-  document.body.style.setProperty('--my', `${y.toFixed(1)}%`);
-  document.body.style.setProperty('--drift-x', driftX.toFixed(2));
-  document.body.style.setProperty('--drift-y', driftY.toFixed(2));
-});
-
 syncSelectedAudio();
 updateTitlePreview();

@@ -154,11 +154,49 @@ function normalizeParticipantName(value) {
     return '';
   }
 
-  if (/^(meeting details|people|activities|settings|search|chat|raise hand|google meet|more options|present now)$/i.test(clean)) {
+  if (isNonParticipantLabel(clean)) {
     return '';
   }
 
   return clean;
+}
+
+function isNonParticipantLabel(value) {
+  const normalized = value.toLowerCase().replace(/\s+/g, ' ').trim();
+
+  const exactUiLabels = new Set([
+    'meeting details',
+    'people',
+    'activities',
+    'settings',
+    'search',
+    'chat',
+    'raise hand',
+    'google meet',
+    'more options',
+    'more actions',
+    'present now',
+    'no participants detected yet.',
+    'welcome to',
+  ]);
+
+  if (exactUiLabels.has(normalized)) {
+    return true;
+  }
+
+  if (/(joined|left)\s*[•·-]\s*\d{1,2}:\d{2}/i.test(normalized)) {
+    return true;
+  }
+
+  if (/^your microphone is turned (off|on)\.?$/i.test(normalized)) {
+    return true;
+  }
+
+  if (/^(host controls|meeting host|captions|reactions|breakout rooms)$/i.test(normalized)) {
+    return true;
+  }
+
+  return false;
 }
 
 function extractNameFromAriaLabel(value) {

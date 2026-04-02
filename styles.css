@@ -19,6 +19,8 @@ body {
   min-height: 100vh;
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text);
+  --mx: 50%;
+  --my: 50%;
   background: radial-gradient(circle at 22% 10%, #18207d 0, transparent 40%),
     radial-gradient(circle at 80% 20%, #5f1979 0, transparent 44%),
     radial-gradient(circle at 52% 84%, #0d6c9e 0, transparent 36%), var(--bg);
@@ -35,6 +37,31 @@ body {
   padding: clamp(1.2rem, 3vw, 2rem);
   position: relative;
   overflow: hidden;
+}
+
+.liquid-bg {
+  position: absolute;
+  width: 120vmax;
+  aspect-ratio: 1;
+  border-radius: 43% 57% 53% 47% / 40% 46% 54% 60%;
+  pointer-events: none;
+  filter: blur(22px) saturate(120%);
+  opacity: 0.35;
+  z-index: 0;
+}
+
+.liquid-bg-a {
+  top: -35vmax;
+  left: -18vmax;
+  background: radial-gradient(circle at 30% 30%, rgba(131, 255, 251, 0.5), rgba(80, 236, 255, 0.12) 48%, transparent 70%);
+  animation: liquidMorphA 24s ease-in-out infinite;
+}
+
+.liquid-bg-b {
+  right: -24vmax;
+  bottom: -40vmax;
+  background: radial-gradient(circle at 56% 52%, rgba(200, 133, 255, 0.42), rgba(255, 77, 141, 0.16) 46%, transparent 70%);
+  animation: liquidMorphB 26s ease-in-out infinite;
 }
 
 .grid-overlay {
@@ -128,12 +155,46 @@ body {
   position: relative;
   width: min(980px, 100%);
   border: 1px solid var(--panel-border);
-  background: var(--panel);
-  backdrop-filter: blur(12px);
+  background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.08) 26%,
+      rgba(255, 255, 255, 0.02) 62%
+    ),
+    var(--panel);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-radius: 22px;
   box-shadow: 0 26px 90px rgba(1, 4, 18, 0.6);
   padding: clamp(1.25rem, 2.8vw, 2.25rem);
   z-index: 1;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    700px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.02) 40%,
+    transparent 60%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+.panel::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .config-panel {
@@ -529,6 +590,30 @@ button {
   }
   100% {
     transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes liquidMorphA {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    border-radius: 43% 57% 53% 47% / 40% 46% 54% 60%;
+  }
+  50% {
+    transform: translate3d(6vmax, 4vmax, 0) rotate(180deg) scale(1.08);
+    border-radius: 58% 42% 45% 55% / 54% 40% 60% 46%;
+  }
+}
+
+@keyframes liquidMorphB {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    border-radius: 51% 49% 37% 63% / 56% 40% 60% 44%;
+  }
+  50% {
+    transform: translate3d(-8vmax, -4vmax, 0) rotate(-180deg) scale(1.09);
+    border-radius: 37% 63% 55% 45% / 42% 58% 42% 58%;
   }
 }
 

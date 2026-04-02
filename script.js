@@ -22,6 +22,7 @@ const configPanel = document.getElementById('configPanel');
 const waitingPanel = document.getElementById('waitingPanel');
 const tickerText = document.getElementById('tickerText');
 const tickerTrack = document.getElementById('tickerTrack');
+const statusChecklistDisplay = document.getElementById('statusChecklistDisplay');
 const presenceStatus = document.getElementById('presenceStatus');
 const presenceEvents = document.getElementById('presenceEvents');
 const presencePeople = document.getElementById('presencePeople');
@@ -52,6 +53,7 @@ let knownEventIds = new Set();
 let extensionPresenceActive = false;
 let hasReceivedPresenceEvent = false;
 let inProgressShown = false;
+let countdownPageTitle = 'Meeting Waiting Screen';
 const musicLabelByUrl = new Map(
   Array.from(musicPresetInput.options)
     .filter((option) => option.value)
@@ -196,6 +198,17 @@ const setTickerMessage = (message) => {
   tickerTrack.textContent = `${normalized} • ${normalized} •`;
 };
 
+const renderStatusChecklist = (items) => {
+  statusChecklistDisplay.textContent = '';
+  const safeItems = items.length ? items : ['Audio check', 'Camera check', 'Screen share ready'];
+
+  safeItems.forEach((itemText) => {
+    const item = document.createElement('li');
+    item.textContent = itemText;
+    statusChecklistDisplay.append(item);
+  });
+};
+
 const stopPreviewAudio = () => {
   if (!previewAudio) {
     updatePreviewStatus();
@@ -270,6 +283,14 @@ const updateTimer = () => {
 
   setBarProgress(diff);
   applyBackgroundAudioFade(diff);
+
+  if (diff > 0 && inProgressShown) {
+    showCountdownState();
+  }
+
+  if (diff > 0 && document.title !== countdownPageTitle) {
+    document.title = countdownPageTitle;
+  }
 
   if (diff <= 0) {
     clearInterval(timerId);
@@ -476,7 +497,9 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName, checklistTex
   }
 
   setTickerMessage(`${oneLineTitle} • Track: ${trackName} • ${checklistSegment}`);
-  document.title = `${oneLineTitle} · Waiting Screen`;
+  renderStatusChecklist(checklistItems);
+  countdownPageTitle = `${oneLineTitle} · Waiting Screen`;
+  document.title = countdownPageTitle;
 
   configPanel.classList.add('hidden');
   waitingPanel.classList.remove('hidden');

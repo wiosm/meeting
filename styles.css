@@ -542,6 +542,23 @@ button {
   font-size: 0.95rem;
 }
 
+.status-checklist-panel {
+  width: min(88vw, 740px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.85rem 1rem;
+  text-align: left;
+}
+
+.status-checklist-list {
+  margin: 0.45rem 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+  color: #d9f6ff;
+}
+
 .waiting-panel {
   text-align: center;
   display: grid;

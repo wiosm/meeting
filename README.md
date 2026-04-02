@@ -29,6 +29,8 @@ Then open http://localhost:4173.
 
 This page can show participant activity if you provide a backend feed URL.
 
+It can also receive events directly from a Chrome extension via `window.postMessage`.
+
 ### Why backend is required
 
 Google Meet event delivery is typically handled server-side (for example via Google Workspace Events + Pub/Sub + your backend), then your backend exposes a safe endpoint for this webpage.
@@ -58,6 +60,27 @@ Notes:
 - `type` must be `joined` or `left`.
 - Events are polled every 5 seconds.
 - Endpoint must allow browser CORS.
+
+### Optional Chrome extension bridge
+
+If you already have (or build) a Chrome extension that detects Google Meet attendance changes, it can send events to this page with:
+
+```js
+window.postMessage(
+  {
+    type: 'meet-presence-event',
+    event: {
+      id: 'evt-123',
+      type: 'joined', // or 'left'
+      name: 'Alex',
+      timestamp: new Date().toISOString(),
+    },
+  },
+  '*'
+);
+```
+
+You can also send multiple events in one message using `events: [...]`.
 
 ## Deploy to Vercel
 

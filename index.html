@@ -81,6 +81,12 @@
             />
           </label>
 
+          <p class="inline-help">
+            Optional: a Chrome extension can push join/left events directly to this page via
+            <code>window.postMessage</code> using
+            <code>{ type: "meet-presence-event", event: { type: "joined"|"left", name, timestamp, id? } }</code>.
+          </p>
+
           <label>
             Event feed token (optional)
             <input
@@ -141,6 +147,10 @@
             <a href="https://developers.google.com/workspace/events/guides/auth" target="_blank" rel="noopener noreferrer">Workspace Events auth scopes</a>
             •
             <a href="https://developers.google.com/workspace/events" target="_blank" rel="noopener noreferrer">Workspace Events overview</a>
+          </p>
+          <p>
+            Alternative approach: build a Chrome extension content script that observes the Meet participant panel and forwards
+            events to this waiting screen with <code>window.postMessage</code>. This page supports that message contract.
           </p>
         </details>
       </section>

@@ -96,16 +96,42 @@
         <details class="workspace-guide">
           <summary>How to connect Google Workspace token (guide)</summary>
           <ol>
-            <li>Create a Google Cloud project and enable Meet + Workspace Events APIs.</li>
-            <li>Configure OAuth consent screen (usually <strong>Internal</strong> for Workspace).</li>
-            <li>Create OAuth client credentials and set your backend callback URL.</li>
             <li>
-              Run OAuth login once to get an access token + refresh token, then store refresh
-              token on your backend.
+              Open
+              <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer">Google Cloud project creator</a>,
+              create/select a project, then open
+              <a href="https://console.cloud.google.com/apis/library" target="_blank" rel="noopener noreferrer">API Library</a>
+              and enable APIs you need (for example Google Meet + Workspace Events).
             </li>
             <li>
-              Create an events subscription in backend, then expose a safe endpoint for this page
+              Configure the
+              <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener noreferrer">OAuth consent screen</a>
+              (usually <strong>Internal</strong> for Workspace organizations), then add required scopes.
+            </li>
+            <li>
+              Go to
+              <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Credentials</a>
+              → <strong>Create credentials</strong> → <strong>OAuth client ID</strong>.
+              Save your <strong>Client ID</strong> and <strong>Client secret</strong>, and set your backend callback URL in
+              <strong>Authorized redirect URIs</strong>.
+            </li>
+            <li>
+              Run OAuth once to get tokens:
+              <ol>
+                <li>Use your backend auth route <em>or</em> open the <a href="https://developers.google.com/oauthplayground/" target="_blank" rel="noopener noreferrer">OAuth 2.0 Playground</a>.</li>
+                <li>In Playground: click the gear icon, check <strong>Use your own OAuth credentials</strong>, and paste your client ID/secret.</li>
+                <li>Pick required scopes, then click <strong>Authorize APIs</strong>.</li>
+                <li>Click <strong>Exchange authorization code for tokens</strong>.</li>
+                <li>Copy the <strong>refresh token</strong> (long-lived) to your backend secret store. Do <strong>not</strong> paste refresh token into this page.</li>
+              </ol>
+            </li>
+            <li>
+              Your backend uses refresh token to mint access tokens and call Google APIs, then expose a safe feed endpoint for this page
               (the <em>Meet event feed URL</em> field).
+            </li>
+            <li>
+              For this screen's <em>Event feed token</em> field, create your own shared token in backend (for example a random 32+ character secret) and send it as
+              <code>Authorization: Bearer YOUR_TOKEN</code>. This token is for <strong>your backend endpoint</strong>, not a raw Google OAuth token.
             </li>
           </ol>
           <p>

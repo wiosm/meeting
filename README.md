@@ -137,10 +137,12 @@ A starter extension is included in `chrome-extension/` that attempts to detect p
 
 ### Load the extension
 
-1. Open Chrome and go to `chrome://extensions`.
+1. Open Chrome and go to [`chrome://extensions`](chrome://extensions).
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
 4. Select this project folder's `chrome-extension` directory.
+
+Need a quick guide link? See Chrome's official docs for unpacked installs: https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked
 
 ### Configure it
 

@@ -95,6 +95,10 @@ Starts Soon</textarea>
             Optional: a Chrome extension can push join/left events directly to this page via
             <code>window.postMessage</code> using
             <code>{ type: "meet-presence-event", event: { type: "joined"|"left", name, timestamp, id? } }</code>.
+            To install this repo's extension, open
+            <a href="chrome://extensions" target="_blank" rel="noopener noreferrer">chrome://extensions</a>,
+            enable <strong>Developer mode</strong>, then click <strong>Load unpacked</strong> and select
+            <code>chrome-extension/</code>.
           </p>
 
           <label>
@@ -160,7 +164,10 @@ Starts Soon</textarea>
           </p>
           <p>
             Alternative approach: build a Chrome extension content script that observes the Meet participant panel and forwards
-            events to this waiting screen with <code>window.postMessage</code>. This page supports that message contract.
+            events to this waiting screen with <code>window.postMessage</code>. This page supports that message contract. You can
+            install the included extension by following
+            <a href="https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked" target="_blank" rel="noopener noreferrer">Chrome's Load unpacked guide</a>
+            and selecting this repo's <code>chrome-extension/</code> folder.
           </p>
         </details>
       </section>

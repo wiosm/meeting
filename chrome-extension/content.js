@@ -188,6 +188,14 @@ function isNonParticipantLabel(value) {
     return true;
   }
 
+  if (/\b(joined|left)\s*[•·-]\s*\d{1,2}:\d{2}(?::\d{2})?(\s*[ap]m)?\b/i.test(normalized)) {
+    return true;
+  }
+
+  if (/can't unmute someone else/i.test(normalized)) {
+    return true;
+  }
+
   if (/^your microphone is turned (off|on)\.?$/i.test(normalized)) {
     return true;
   }

@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Meet Activity Bridge</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 12px; min-width: 320px; }
+      label { display: block; font-size: 12px; margin-bottom: 6px; color: #444; }
+      input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 8px; }
+      button { width: 100%; padding: 8px; cursor: pointer; }
+      #status { margin-top: 8px; font-size: 12px; color: #0a5; min-height: 16px; }
+      code { font-size: 11px; display: block; margin-top: 8px; color: #555; }
+    </style>
+  </head>
+  <body>
+    <label for="targetUrl">Waiting-screen URL</label>
+    <input id="targetUrl" type="url" placeholder="http://localhost:4173" />
+    <button id="saveBtn">Save</button>
+    <div id="status"></div>
+    <code>Open Google Meet + waiting-screen tab at the same time.</code>
+    <script src="popup.js"></script>
+  </body>
+</html>

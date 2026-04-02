@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Meet Activity Bridge",
+  "description": "Detects Google Meet join/left activity and sends events to a waiting-screen page.",
+  "version": "1.0.0",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": [
+    "https://meet.google.com/*",
+    "http://localhost/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Meet Activity Bridge",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

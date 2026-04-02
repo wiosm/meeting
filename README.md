@@ -130,3 +130,43 @@ Vercel will automatically serve `index.html` as the homepage.
 - `vercel.json` is already present and includes clean URL behavior.
 - No environment variables are required for this static version.
 - Every push to your connected branch can trigger an automatic redeploy.
+
+## Included Chrome extension (Meet activity bridge)
+
+A starter extension is included in `chrome-extension/` that attempts to detect participant join/left changes from Google Meet and forwards those events to this page using the `window.postMessage` format shown above.
+
+### Load the extension
+
+1. Open Chrome and go to `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select this project folder's `chrome-extension` directory.
+
+### Configure it
+
+1. Click the extension icon and pin **Meet Activity Bridge**.
+2. Open the popup and set your waiting-screen URL (for local use: `http://localhost:4173`).
+3. Keep both tabs open:
+   - a Google Meet tab (`https://meet.google.com/...`)
+   - your waiting-screen page
+
+When the extension detects participant changes, it sends events as:
+
+```json
+{
+  "type": "meet-presence-event",
+  "events": [
+    {
+      "id": "joined-Alex-...",
+      "type": "joined",
+      "name": "Alex",
+      "timestamp": "2026-04-02T12:30:00Z"
+    }
+  ]
+}
+```
+
+### Notes and limitations
+
+- Google Meet's internal DOM can change at any time, which may affect detection reliability.
+- For production-grade accuracy, prefer the backend/webhook approach described earlier.

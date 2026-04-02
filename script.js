@@ -1,6 +1,7 @@
 const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
+const musicInput = document.getElementById('meetingMusic');
 const titlePreview = document.getElementById('titlePreview');
 const waitingTitle = document.getElementById('meetingTitleDisplay');
 const countdownDisplay = document.getElementById('countdownDisplay');
@@ -21,6 +22,8 @@ let totalSeconds = 5 * 60;
 let endTime = null;
 let timerId = null;
 let lastRenderedTime = '05:00';
+let selectedAudioUrl = null;
+let backgroundAudio = null;
 
 const toMMSS = (secondsLeft) => {
   const mins = Math.floor(secondsLeft / 60)
@@ -76,8 +79,39 @@ const updateTimer = () => {
     timerId = null;
     lastRenderedTime = '00:00';
     setTimerDigits('00:00');
+    stopBackgroundAudio();
     tickerText.textContent = 'You are live now • Meeting room should be ready • Let attendees in';
     document.title = 'Meeting should begin now';
+  }
+};
+
+const stopBackgroundAudio = () => {
+  if (!backgroundAudio) {
+    return;
+  }
+
+  backgroundAudio.pause();
+  backgroundAudio.currentTime = 0;
+  backgroundAudio = null;
+};
+
+const startBackgroundAudio = async () => {
+  stopBackgroundAudio();
+  if (!selectedAudioUrl) {
+    return;
+  }
+
+  const audio = new Audio(selectedAudioUrl);
+  audio.loop = true;
+  audio.volume = 0.8;
+  backgroundAudio = audio;
+
+  try {
+    await audio.play();
+  } catch (error) {
+    console.warn('Audio autoplay failed:', error);
+    tickerText.textContent =
+      'Music could not autoplay. Click anywhere on the page to allow playback.';
   }
 };
 
@@ -110,6 +144,7 @@ const startCountdown = (meetingTitle, minutes) => {
 
   clearInterval(timerId);
   timerId = setInterval(updateTimer, 250);
+  void startBackgroundAudio();
 
   void openFullscreen();
 };
@@ -118,6 +153,7 @@ const reset = () => {
   clearInterval(timerId);
   timerId = null;
   totalSeconds = 5 * 60;
+  stopBackgroundAudio();
 
   configPanel.classList.remove('hidden');
   waitingPanel.classList.add('hidden');
@@ -148,4 +184,26 @@ form.addEventListener('submit', (event) => {
   startCountdown(meetingTitle, minutes);
 });
 
+musicInput.addEventListener('change', () => {
+  const [selectedFile] = musicInput.files || [];
+
+  if (selectedAudioUrl) {
+    URL.revokeObjectURL(selectedAudioUrl);
+    selectedAudioUrl = null;
+  }
+
+  if (!selectedFile) {
+    return;
+  }
+
+  selectedAudioUrl = URL.createObjectURL(selectedFile);
+});
+
 resetBtn.addEventListener('click', reset);
+
+window.addEventListener('beforeunload', () => {
+  stopBackgroundAudio();
+  if (selectedAudioUrl) {
+    URL.revokeObjectURL(selectedAudioUrl);
+  }
+});

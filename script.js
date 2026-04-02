@@ -54,7 +54,7 @@ const formatTitle = (rawTitle, format) => {
     .trim();
 
   if (!normalized) {
-    return 'Meeting Starts Soon';
+    return 'Weekly Sync\nStarts Soon';
   }
 
   if (format === 'uppercase') {
@@ -89,7 +89,7 @@ const parseLineSizes = (lineSizesText, lineCount) => {
 
 const renderTitleWithSizes = (target, formattedTitle, lineSizesText) => {
   const lines = formattedTitle.split('\n').filter((line) => line.trim().length > 0);
-  const safeLines = lines.length ? lines : ['Meeting Starts Soon'];
+  const safeLines = lines.length ? lines : ['Weekly Sync', 'Starts Soon'];
   const sizes = parseLineSizes(lineSizesText, safeLines.length);
 
   target.innerHTML = '';
@@ -297,7 +297,7 @@ const handleExtensionPresenceMessage = (messageEvent) => {
     extensionPresenceActive = true;
   }
 
-  presenceStatus.textContent = `Receiving extension events • Last update ${formatEventTime(new Date())}`;
+  presenceStatus.textContent = 'Connected to extension events.';
 };
 
 const renderPresencePeople = (participants) => {

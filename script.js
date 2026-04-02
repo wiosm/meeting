@@ -16,6 +16,7 @@ const presenceStatus = document.getElementById('presenceStatus');
 const presenceEvents = document.getElementById('presenceEvents');
 const joinedCountEl = document.getElementById('joinedCount');
 const leftCountEl = document.getElementById('leftCount');
+const presencePanel = document.getElementById('presencePanel');
 
 const digitMap = {
   m1: countdownDisplay.querySelector('[data-digit="m1"]'),
@@ -217,6 +218,11 @@ const stopWebhookPolling = () => {
   webhookPollId = null;
 };
 
+const setPresenceVisibility = (url) => {
+  const hasWebhookUrl = Boolean(url);
+  presencePanel.classList.toggle('presence-hidden', !hasWebhookUrl);
+};
+
 const fetchWebhookEvents = async (url, token) => {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const response = await fetch(url, {
@@ -237,6 +243,7 @@ const fetchWebhookEvents = async (url, token) => {
 
 const startWebhookPolling = (url, token) => {
   stopWebhookPolling();
+  setPresenceVisibility(url);
 
   if (!url) {
     presenceStatus.textContent = 'No event feed connected yet.';

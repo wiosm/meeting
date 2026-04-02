@@ -626,6 +626,7 @@ button {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #e8eeff;
+  animation: inProgressPulse 1.5s ease-in-out infinite;
 }
 
 .timer {
@@ -673,7 +674,7 @@ button {
 body[data-visual-mode='gentle'] .colon,
 body[data-visual-mode='gentle'] .live-chip span,
 body[data-visual-mode='gentle'] .digit-change,
-body[data-visual-mode='gentle'] .ticker,
+body[data-visual-mode='gentle'] .ticker-track,
 body[data-visual-mode='gentle'] .scanline-overlay,
 body[data-visual-mode='gentle'] .sparkle-overlay,
 body[data-visual-mode='gentle'] .bg-motion-layer,
@@ -682,7 +683,8 @@ body[data-visual-mode='gentle'] .aurora,
 body[data-visual-mode='gentle'] .nebula-ring,
 body[data-visual-mode='gentle'] .prism-overlay,
 body[data-visual-mode='gentle'] .grid-overlay,
-body[data-visual-mode='gentle'] .in-progress-spinner {
+body[data-visual-mode='gentle'] .in-progress-spinner,
+body[data-visual-mode='gentle'] .in-progress-text {
   animation: none !important;
 }
 
@@ -713,6 +715,18 @@ body[data-visual-mode='gentle'] .grid-overlay {
   }
 }
 
+@keyframes inProgressPulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    text-shadow: 0 0 0 rgba(80, 236, 255, 0);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 16px rgba(80, 236, 255, 0.4);
+  }
+}
+
 .progress-bar-wrap {
   width: min(90vw, 760px);
   height: 12px;
@@ -736,7 +750,6 @@ body[data-visual-mode='gentle'] .grid-overlay {
   width: min(90vw, 800px);
   color: var(--muted);
   font-size: 1rem;
-  white-space: nowrap;
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -744,7 +757,14 @@ body[data-visual-mode='gentle'] .grid-overlay {
   backdrop-filter: blur(7px);
   border-radius: 12px;
   padding: 0.48rem 0;
-  animation: tickerMove 13s linear infinite;
+  position: relative;
+}
+
+.ticker-track {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: tickerMarquee 18s linear infinite;
 }
 
 .presence-panel {
@@ -804,15 +824,12 @@ body[data-visual-mode='gentle'] .grid-overlay {
   font-size: 0.95rem;
 }
 
-@keyframes tickerMove {
+@keyframes tickerMarquee {
   0% {
-    transform: translateX(6%);
-  }
-  50% {
-    transform: translateX(-6%);
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(6%);
+    transform: translateX(-50%);
   }
 }
 

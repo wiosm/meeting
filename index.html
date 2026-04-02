@@ -16,6 +16,8 @@
     <main class="app-shell">
       <div class="aurora aurora-a"></div>
       <div class="aurora aurora-b"></div>
+      <div class="nebula-ring" aria-hidden="true"></div>
+      <div class="sparkle-overlay" aria-hidden="true"></div>
       <div class="grid-overlay" aria-hidden="true"></div>
 
       <section class="panel config-panel" id="configPanel">
@@ -47,6 +49,16 @@ Starts Soon</textarea>
               <option value="uppercase">UPPERCASE</option>
               <option value="titlecase">Title Case</option>
             </select>
+          </label>
+
+          <label>
+            Title line sizes (% per line)
+            <textarea
+              id="titleLineSizes"
+              rows="3"
+              placeholder="100&#10;75&#10;60"
+            >100
+75</textarea>
           </label>
 
           <label>

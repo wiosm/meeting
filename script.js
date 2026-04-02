@@ -182,9 +182,6 @@ const showCountdownState = () => {
 };
 
 const showInProgressState = () => {
-  if (inProgressShown) {
-    return;
-  }
   inProgressShown = true;
   countdownStage.classList.add('hidden');
   countdownStage.hidden = true;
@@ -497,7 +494,6 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName, checklistTex
   }
 
   setTickerMessage(`${oneLineTitle} • Track: ${trackName} • ${checklistSegment}`);
-  renderStatusChecklist(checklistItems);
   countdownPageTitle = `${oneLineTitle} · Waiting Screen`;
   document.title = countdownPageTitle;
 

@@ -425,5 +425,12 @@ window.addEventListener('beforeunload', () => {
 
 window.addEventListener('message', handleExtensionPresenceMessage);
 
+window.addEventListener('pointermove', (event) => {
+  const x = (event.clientX / window.innerWidth) * 100;
+  const y = (event.clientY / window.innerHeight) * 100;
+  document.body.style.setProperty('--mx', `${x.toFixed(1)}%`);
+  document.body.style.setProperty('--my', `${y.toFixed(1)}%`);
+});
+
 syncSelectedAudio();
 updateTitlePreview();

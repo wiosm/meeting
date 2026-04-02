@@ -8,6 +8,7 @@ A fullscreen meeting waiting-screen web page with configurable title and countdo
 - Configurable countdown in minutes (default: 5)
 - Local MP3 picker (loops while countdown is running)
 - Optional Meet event feed URL + token fields (for webhook relay integration)
+- In-page Google Workspace token setup guide (expandable help section)
 - Fullscreen mode on start
 - Twitch-inspired "starting soon" visual style (neon timer, live chip, ticker, progress bar)
 - Static site ready for Vercel deployment

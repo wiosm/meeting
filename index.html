@@ -76,6 +76,31 @@
 
           <button id="startBtn" type="submit">Start Waiting Screen</button>
         </form>
+
+        <details class="workspace-guide">
+          <summary>How to connect Google Workspace token (guide)</summary>
+          <ol>
+            <li>Create a Google Cloud project and enable Meet + Workspace Events APIs.</li>
+            <li>Configure OAuth consent screen (usually <strong>Internal</strong> for Workspace).</li>
+            <li>Create OAuth client credentials and set your backend callback URL.</li>
+            <li>
+              Run OAuth login once to get an access token + refresh token, then store refresh
+              token on your backend.
+            </li>
+            <li>
+              Create an events subscription in backend, then expose a safe endpoint for this page
+              (the <em>Meet event feed URL</em> field).
+            </li>
+          </ol>
+          <p>
+            Official docs:
+            <a href="https://developers.google.com/workspace/guides/create-credentials" target="_blank" rel="noopener noreferrer">Create credentials</a>
+            •
+            <a href="https://developers.google.com/workspace/events/guides/auth" target="_blank" rel="noopener noreferrer">Workspace Events auth scopes</a>
+            •
+            <a href="https://developers.google.com/workspace/events" target="_blank" rel="noopener noreferrer">Workspace Events overview</a>
+          </p>
+        </details>
       </section>
 
       <section class="panel waiting-panel hidden" id="waitingPanel">

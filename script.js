@@ -494,6 +494,7 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName, checklistTex
   }
 
   setTickerMessage(`${oneLineTitle} • Track: ${trackName} • ${checklistSegment}`);
+  renderStatusChecklist(checklistItems);
   countdownPageTitle = `${oneLineTitle} · Waiting Screen`;
   document.title = countdownPageTitle;
 

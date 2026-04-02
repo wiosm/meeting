@@ -204,6 +204,14 @@ function isNonParticipantLabel(value) {
     return true;
   }
 
+  if (/^(mute|unmute)\s+.+(?:'s|’s)\s+microphone\.?$/i.test(normalized)) {
+    return true;
+  }
+
+  if (/^(stop|start)\s+.+(?:'s|’s)\s+video\.?$/i.test(normalized)) {
+    return true;
+  }
+
   return false;
 }
 

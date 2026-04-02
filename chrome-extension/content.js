@@ -132,11 +132,30 @@ function readNameFromElement(el) {
     el.textContent ||
     '';
 
+  const controlLabelName = extractNameFromControlLabel(raw);
+  if (controlLabelName) {
+    return normalizeParticipantName(controlLabelName);
+  }
+
   return normalizeParticipantName(extractPrimaryDisplayName(raw));
 }
 
 function extractPrimaryDisplayName(value) {
   return String(value).split(/[\n,]/)[0].trim();
+}
+
+function extractNameFromControlLabel(value) {
+  const raw = String(value || '').trim();
+  if (!raw) {
+    return '';
+  }
+
+  const muteToggleMatch = raw.match(/^(?:mute|unmute)\s+(.+?)'s\s+(?:microphone|camera)\b/i);
+  if (muteToggleMatch?.[1]) {
+    return muteToggleMatch[1].trim();
+  }
+
+  return '';
 }
 
 function normalizeParticipantName(value) {
@@ -193,6 +212,10 @@ function isNonParticipantLabel(value) {
   }
 
   if (/can't unmute someone else/i.test(normalized)) {
+    return true;
+  }
+
+  if (/^(mute|unmute)\s+.+/i.test(normalized)) {
     return true;
   }
 

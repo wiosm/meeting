@@ -2,6 +2,7 @@ const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
 const hostInput = document.getElementById('meetingHost');
+const tickerMessageInput = document.getElementById('tickerMessage');
 const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
 const backgroundThemeInput = document.getElementById('backgroundTheme');
@@ -487,7 +488,7 @@ const applyVisualMode = (isGentle) => {
   document.body.dataset.visualMode = isGentle ? 'gentle' : 'normal';
 };
 
-const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
+const startCountdown = (meetingTitle, lineSizes, minutes, hostName, tickerMessage) => {
   const oneLineTitle = flattenTitle(meetingTitle);
   const trackName = localAudioUrl ? 'Local upload' : musicLabelByUrl.get(selectedAudioUrl) || 'No music';
 
@@ -500,7 +501,8 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
     hostDisplay.textContent = '';
   }
 
-  setTickerMessage(`${oneLineTitle} • Track: ${trackName}`);
+  const customTicker = tickerMessage.trim();
+  setTickerMessage(customTicker || `${oneLineTitle} • Track: ${trackName}`);
   countdownPageTitle = `${oneLineTitle} · Waiting Screen`;
   document.title = countdownPageTitle;
 
@@ -553,6 +555,7 @@ form.addEventListener('submit', (event) => {
   const lineSizes = titleLineSizesInput.value;
   const minutes = Number.parseInt(minutesInput.value, 10);
   const hostName = formatHost(hostInput.value);
+  const tickerMessage = tickerMessageInput.value;
 
   if (!minutes || minutes < 1) {
     minutesInput.focus();
@@ -561,7 +564,7 @@ form.addEventListener('submit', (event) => {
 
   extensionPresenceActive = false;
   resetPresence();
-  startCountdown(meetingTitle, lineSizes, minutes, hostName);
+  startCountdown(meetingTitle, lineSizes, minutes, hostName, tickerMessage);
 });
 
 musicPresetInput.addEventListener('change', () => {

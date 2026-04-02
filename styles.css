@@ -427,6 +427,13 @@ h2 {
   box-shadow: 0 10px 28px rgba(80, 236, 255, 0.35);
 }
 
+.waiting-toggle {
+  width: fit-content;
+  margin: 0.9rem auto 0;
+  font-size: 0.92rem;
+  color: #d6f6ff;
+}
+
 .form-grid {
   display: grid;
   gap: 1rem;

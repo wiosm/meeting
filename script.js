@@ -4,6 +4,7 @@ const minutesInput = document.getElementById('meetingMinutes');
 const hostInput = document.getElementById('meetingHost');
 const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
+const backgroundThemeInput = document.getElementById('backgroundTheme');
 const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
 const titlePreview = document.getElementById('titlePreview');
@@ -54,7 +55,7 @@ const formatTitle = (rawTitle, format) => {
     .trim();
 
   if (!normalized) {
-    return 'iOS Dailiy Standup';
+    return 'iOS Daily Standup';
   }
 
   if (format === 'uppercase') {
@@ -89,7 +90,7 @@ const parseLineSizes = (lineSizesText, lineCount) => {
 
 const renderTitleWithSizes = (target, formattedTitle, lineSizesText) => {
   const lines = formattedTitle.split('\n').filter((line) => line.trim().length > 0);
-  const safeLines = lines.length ? lines : ['iOS Dailiy Standup'];
+  const safeLines = lines.length ? lines : ['iOS Daily Standup'];
   const sizes = parseLineSizes(lineSizesText, safeLines.length);
 
   target.innerHTML = '';
@@ -335,6 +336,13 @@ const setPresenceVisibility = () => {
       'Waiting for extension events. Keep Meet + waiting screen tabs open, and open the People panel in Meet.';
   }
 };
+
+const applyBackgroundTheme = (themeName) => {
+  const allowedThemes = new Set(['nebula', 'sunset', 'matrix', 'frost']);
+  const nextTheme = allowedThemes.has(themeName) ? themeName : 'nebula';
+  document.body.dataset.bgTheme = nextTheme;
+};
+
 const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
   const oneLineTitle = flattenTitle(meetingTitle);
   const trackName = localAudioUrl ? 'Local upload' : musicLabelByUrl.get(selectedAudioUrl) || 'No music';
@@ -381,6 +389,9 @@ const updateTitlePreview = () => {
 titleInput.addEventListener('input', updateTitlePreview);
 titleFormatInput.addEventListener('change', updateTitlePreview);
 titleLineSizesInput.addEventListener('input', updateTitlePreview);
+backgroundThemeInput.addEventListener('change', () => {
+  applyBackgroundTheme(backgroundThemeInput.value);
+});
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -432,4 +443,5 @@ window.addEventListener('beforeunload', () => {
 window.addEventListener('message', handleExtensionPresenceMessage);
 
 syncSelectedAudio();
+applyBackgroundTheme(backgroundThemeInput.value);
 updateTitlePreview();

@@ -555,11 +555,10 @@ button {
 .status-checklist-list {
   margin: 0.45rem 0 0;
   padding-left: 1.2rem;
-  display: grid;
-  gap: 0.35rem;
+  white-space: nowrap;
   color: #d9f6ff;
-  max-height: 130px;
-  overflow: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .waiting-panel {

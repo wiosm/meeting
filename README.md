@@ -137,6 +137,10 @@ A starter extension is included in `chrome-extension/` that attempts to detect p
 
 ### Load the extension
 
+If your extension is published to the Chrome Web Store, users can install by opening the store page and clicking **Add to Chrome** (closest to one-click install).
+
+For this local repo version (unpacked), Chrome requires manual loading:
+
 1. Open Chrome and go to [`chrome://extensions`](chrome://extensions).
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.

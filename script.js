@@ -6,6 +6,7 @@ const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
 const backgroundThemeInput = document.getElementById('backgroundTheme');
 const gentleVisualsInput = document.getElementById('gentleVisuals');
+const gentleVisualsWaitingInput = document.getElementById('gentleVisualsWaiting');
 const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
 const previewMusicBtn = document.getElementById('previewMusicBtn');
@@ -246,6 +247,12 @@ const applyBackgroundAudioFade = (secondsLeft) => {
     return;
   }
   backgroundAudio.volume = BACKGROUND_AUDIO_VOLUME;
+};
+
+const setGentleVisuals = (isEnabled) => {
+  gentleVisualsInput.checked = isEnabled;
+  gentleVisualsWaitingInput.checked = isEnabled;
+  applyVisualMode(isEnabled);
 };
 
 const updateTimer = () => {
@@ -511,7 +518,10 @@ backgroundThemeInput.addEventListener('change', () => {
   applyBackgroundTheme(backgroundThemeInput.value);
 });
 gentleVisualsInput.addEventListener('change', () => {
-  applyVisualMode(gentleVisualsInput.checked);
+  setGentleVisuals(gentleVisualsInput.checked);
+});
+gentleVisualsWaitingInput.addEventListener('change', () => {
+  setGentleVisuals(gentleVisualsWaitingInput.checked);
 });
 
 form.addEventListener('submit', (event) => {
@@ -573,7 +583,8 @@ window.addEventListener('message', handleExtensionPresenceMessage);
 syncSelectedAudio();
 applyBackgroundTheme(backgroundThemeInput.value);
 if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  gentleVisualsInput.checked = true;
+  setGentleVisuals(true);
+} else {
+  setGentleVisuals(gentleVisualsInput.checked);
 }
-applyVisualMode(gentleVisualsInput.checked);
 updateTitlePreview();

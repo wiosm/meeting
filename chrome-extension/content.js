@@ -12,6 +12,22 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return false;
 });
 
+function isRuntimeAvailable() {
+  return Boolean(chrome?.runtime?.id);
+}
+
+function sendMessageSafely(payload) {
+  if (!isRuntimeAvailable()) {
+    return false;
+  }
+
+  chrome.runtime.sendMessage(payload, () => {
+    void chrome.runtime.lastError;
+  });
+
+  return true;
+}
+
 function startMeetActivityTracker() {
   if (window.__meetAttendanceTrackerStarted) {
     return;
@@ -21,6 +37,11 @@ function startMeetActivityTracker() {
   let previousSet = new Set();
 
   const poll = () => {
+    if (!isRuntimeAvailable()) {
+      clearInterval(intervalId);
+      return;
+    }
+
     const currentNames = readParticipantNames();
     const currentSet = new Set(currentNames);
     const joined = currentNames.filter((name) => !previousSet.has(name));
@@ -43,22 +64,19 @@ function startMeetActivityTracker() {
         })),
       ];
 
-      chrome.runtime.sendMessage({ type: 'meet-events', events }, () => {
-        void chrome.runtime.lastError;
-      });
+      sendMessageSafely({ type: 'meet-events', events });
     }
 
-    chrome.runtime.sendMessage(
-      { type: 'meet-snapshot', participants: currentNames, timestamp: new Date().toISOString() },
-      () => {
-        void chrome.runtime.lastError;
-      }
-    );
+    sendMessageSafely({
+      type: 'meet-snapshot',
+      participants: currentNames,
+      timestamp: new Date().toISOString(),
+    });
 
     previousSet = currentSet;
   };
 
-  setInterval(poll, 3000);
+  const intervalId = setInterval(poll, 3000);
   setTimeout(poll, 1500);
 }
 

@@ -21,6 +21,8 @@ body {
   color: var(--text);
   --mx: 50%;
   --my: 50%;
+  --drift-x: 0px;
+  --drift-y: 0px;
   background: radial-gradient(circle at 22% 10%, #18207d 0, transparent 40%),
     radial-gradient(circle at 80% 20%, #5f1979 0, transparent 44%),
     radial-gradient(circle at 52% 84%, #0d6c9e 0, transparent 36%), var(--bg);
@@ -64,6 +66,16 @@ body {
   animation: liquidMorphB 26s ease-in-out infinite;
 }
 
+.liquid-bg-c {
+  left: 50%;
+  top: 50%;
+  width: 95vmax;
+  transform: translate(-50%, -50%);
+  opacity: 0.26;
+  background: radial-gradient(circle at 45% 40%, rgba(94, 255, 181, 0.33), rgba(75, 151, 255, 0.1) 44%, transparent 72%);
+  animation: liquidMorphC 20s ease-in-out infinite;
+}
+
 .grid-overlay {
   position: absolute;
   inset: 0;
@@ -84,7 +96,23 @@ body {
     radial-gradient(1.8px 1.8px at 84% 74%, rgba(255, 182, 240, 0.85), transparent),
     radial-gradient(1.2px 1.2px at 42% 80%, rgba(255, 255, 255, 0.6), transparent);
   background-size: 260px 260px, 320px 320px, 360px 360px, 280px 280px;
-  animation: sparkleDrift 22s linear infinite;
+  animation: sparkleDrift 16s linear infinite;
+}
+
+.scanline-overlay {
+  position: absolute;
+  inset: -15%;
+  pointer-events: none;
+  opacity: 0.1;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0,
+    rgba(255, 255, 255, 0.08) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+  mix-blend-mode: soft-light;
+  animation: scanlineSlide 8s linear infinite;
 }
 
 .aurora {
@@ -101,7 +129,7 @@ body {
   background: #1894ff;
   top: 6%;
   left: 7%;
-  animation: floatA 11s ease-in-out infinite;
+  animation: floatA 9s ease-in-out infinite;
 }
 
 .aurora-b {
@@ -110,7 +138,7 @@ body {
   background: #a24eff;
   bottom: 4%;
   right: 12%;
-  animation: floatB 10s ease-in-out infinite;
+  animation: floatB 8.5s ease-in-out infinite;
 }
 
 .nebula-ring {
@@ -128,7 +156,7 @@ body {
   );
   filter: blur(2px);
   opacity: 0.7;
-  animation: ringSpin 28s linear infinite;
+  animation: ringSpin 20s linear infinite;
 }
 
 @keyframes floatA {
@@ -169,6 +197,8 @@ body {
   padding: clamp(1.25rem, 2.8vw, 2.25rem);
   z-index: 1;
   overflow: hidden;
+  transform: perspective(1200px) rotateX(calc(var(--drift-y) * -0.025)) rotateY(calc(var(--drift-x) * 0.03));
+  transition: transform 220ms ease-out;
 }
 
 .panel::before {
@@ -586,10 +616,19 @@ button {
     transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(-30px, -24px, 0);
+    transform: translate3d(-40px, -30px, 0);
   }
   100% {
     transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes scanlineSlide {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(24px);
   }
 }
 
@@ -614,6 +653,28 @@ button {
   50% {
     transform: translate3d(-8vmax, -4vmax, 0) rotate(-180deg) scale(1.09);
     border-radius: 37% 63% 55% 45% / 42% 58% 42% 58%;
+  }
+}
+
+@keyframes liquidMorphC {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    border-radius: 54% 46% 58% 42% / 45% 55% 45% 55%;
+  }
+  50% {
+    transform: translate(calc(-50% + 5vmax), calc(-50% - 3vmax)) rotate(160deg) scale(1.12);
+    border-radius: 38% 62% 43% 57% / 62% 38% 62% 38%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

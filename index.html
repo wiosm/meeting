@@ -107,7 +107,18 @@ Starts Soon</textarea>
             Optional: a Chrome extension can push join/left events directly to this page via
             <code>window.postMessage</code> using
             <code>{ type: "meet-presence-event", event: { type: "joined"|"left", name, timestamp, id? } }</code>.
-            To install this repo's extension, open
+            <span class="inline-help-actions">
+              <a
+                class="help-install-btn"
+                href="https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Click here to install (quick guide)
+              </a>
+            </span>
+            Chrome does not allow one-click install for local folders, so for this repo you still need:
+            open
             <a href="chrome://extensions" target="_blank" rel="noopener noreferrer">chrome://extensions</a>,
             enable <strong>Developer mode</strong>, then click <strong>Load unpacked</strong> and select
             <code>chrome-extension/</code>.

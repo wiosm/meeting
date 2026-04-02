@@ -20,7 +20,8 @@
 
       <section class="panel config-panel" id="configPanel">
         <p class="eyebrow">Meeting Room</p>
-        <h1 id="titlePreview">Weekly Sync Starts Soon</h1>
+        <h1 id="titlePreview">Weekly Sync
+Starts Soon</h1>
         <p class="subtitle">
           Twitch-style "starting soon" look inspired by your reference video.
           Configure your title and timer, then press start.
@@ -29,14 +30,23 @@
         <form id="configForm" class="form-grid" autocomplete="off">
           <label>
             Meeting title
-            <input
+            <textarea
               id="meetingTitle"
-              type="text"
-              maxlength="70"
-              value="Weekly Sync Starts Soon"
-              placeholder="Type your meeting title"
+              rows="3"
+              maxlength="140"
+              placeholder="Type your meeting title (multiple lines supported)"
               required
-            />
+            >Weekly Sync
+Starts Soon</textarea>
+          </label>
+
+          <label>
+            Title format
+            <select id="titleFormat">
+              <option value="original">Original</option>
+              <option value="uppercase">UPPERCASE</option>
+              <option value="titlecase">Title Case</option>
+            </select>
           </label>
 
           <label>
@@ -158,7 +168,8 @@
       <section class="panel waiting-panel hidden" id="waitingPanel">
         <div class="live-chip" aria-hidden="true"><span></span> LIVE EVENT</div>
         <p class="badge">Starting in</p>
-        <h2 id="meetingTitleDisplay" class="waiting-title">Weekly Sync Starts Soon</h2>
+        <h2 id="meetingTitleDisplay" class="waiting-title">Weekly Sync
+Starts Soon</h2>
 
         <div class="countdown-stage">
           <p id="countdownDisplay" class="timer" aria-live="polite">

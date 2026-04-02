@@ -24,7 +24,8 @@ body {
     radial-gradient(circle at 52% 84%, #0d6c9e 0, transparent 36%), var(--bg);
   background-size: 130% 130%;
   animation: ambientShift 18s ease-in-out infinite;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .app-shell {
@@ -135,6 +136,11 @@ body {
   z-index: 1;
 }
 
+.config-panel {
+  max-height: calc(100vh - 2.4rem);
+  overflow-y: auto;
+}
+
 .hidden {
   display: none;
 }
@@ -163,38 +169,22 @@ h2 {
   font-size: 0.98rem;
 }
 
+.host-pill {
+  margin: 0.75rem 0 0;
+  display: inline-block;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #03141f;
+  background: linear-gradient(120deg, var(--accent), #8bf4ff);
+  box-shadow: 0 10px 28px rgba(80, 236, 255, 0.35);
+}
+
 .form-grid {
   display: grid;
   gap: 1rem;
-}
-
-.workspace-guide {
-  margin-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
-  padding-top: 0.8rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.workspace-guide summary {
-  cursor: pointer;
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.workspace-guide ol {
-  margin: 0.65rem 0 0;
-  padding-left: 1.1rem;
-  display: grid;
-  gap: 0.35rem;
-}
-
-.workspace-guide p {
-  margin: 0.6rem 0 0;
-}
-
-.workspace-guide a {
-  color: #b6f7ff;
 }
 
 label {

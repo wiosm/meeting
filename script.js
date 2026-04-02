@@ -1,14 +1,14 @@
 const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
+const hostInput = document.getElementById('meetingHost');
 const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
 const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
-const webhookUrlInput = document.getElementById('meetWebhookUrl');
-const webhookTokenInput = document.getElementById('meetWebhookToken');
 const titlePreview = document.getElementById('titlePreview');
 const waitingTitle = document.getElementById('meetingTitleDisplay');
+const hostDisplay = document.getElementById('meetingHostDisplay');
 const countdownDisplay = document.getElementById('countdownDisplay');
 const barProgress = document.getElementById('barProgress');
 const configPanel = document.getElementById('configPanel');
@@ -16,6 +16,7 @@ const waitingPanel = document.getElementById('waitingPanel');
 const tickerText = document.getElementById('tickerText');
 const presenceStatus = document.getElementById('presenceStatus');
 const presenceEvents = document.getElementById('presenceEvents');
+const presencePeople = document.getElementById('presencePeople');
 const joinedCountEl = document.getElementById('joinedCount');
 const leftCountEl = document.getElementById('leftCount');
 const presencePanel = document.getElementById('presencePanel');
@@ -37,7 +38,6 @@ let backgroundAudio = null;
 let joinedCount = 0;
 let leftCount = 0;
 let knownEventIds = new Set();
-let webhookPollId = null;
 let extensionPresenceActive = false;
 
 const formatTitle = (rawTitle, format) => {
@@ -65,6 +65,7 @@ const formatTitle = (rawTitle, format) => {
 };
 
 const flattenTitle = (title) => title.replace(/\s*\n\s*/g, ' • ');
+const formatHost = (rawHost) => rawHost.trim().replace(/\s+/g, ' ');
 
 const parseLineSizes = (lineSizesText, lineCount) => {
   const sizeRows = lineSizesText
@@ -202,18 +203,6 @@ const openFullscreen = async () => {
   }
 };
 
-const normalizeEvents = (payload) => {
-  if (Array.isArray(payload)) {
-    return payload;
-  }
-
-  if (payload && Array.isArray(payload.events)) {
-    return payload.events;
-  }
-
-  return [];
-};
-
 const formatEventTime = (timestamp) => {
   if (!timestamp) {
     return 'now';
@@ -259,7 +248,7 @@ const appendPresenceEvent = (event) => {
 };
 
 const normalizeMessageEvent = (payload) => {
-  if (!payload || payload.type !== 'meet-presence-event') {
+  if (!payload || (payload.type !== 'meet-presence-event' && payload.type !== 'meet-presence-snapshot')) {
     return [];
   }
 
@@ -281,26 +270,20 @@ const resetPresence = () => {
   joinedCountEl.textContent = '0';
   leftCountEl.textContent = '0';
   presenceEvents.textContent = '';
-  presenceStatus.textContent = 'Waiting for extension or webhook events.';
-};
-
-const stopWebhookPolling = () => {
-  if (!webhookPollId) {
-    return;
-  }
-
-  clearInterval(webhookPollId);
-  webhookPollId = null;
+  presencePeople.textContent = '';
+  presenceStatus.textContent = 'Waiting for Chrome extension events.';
 };
 
 const handleExtensionPresenceMessage = (messageEvent) => {
-  const events = normalizeMessageEvent(messageEvent.data);
-  if (!events.length) {
+  const payload = messageEvent.data;
+  if (!payload || (payload.type !== 'meet-presence-event' && payload.type !== 'meet-presence-snapshot')) {
     return;
   }
 
-  setPresenceVisibility('extension');
+  const events = normalizeMessageEvent(payload);
+  setPresenceVisibility();
   events.forEach(appendPresenceEvent);
+  renderPresencePeople(payload.participants);
 
   if (!extensionPresenceActive) {
     extensionPresenceActive = true;
@@ -309,64 +292,48 @@ const handleExtensionPresenceMessage = (messageEvent) => {
   presenceStatus.textContent = `Receiving extension events • Last update ${formatEventTime(new Date())}`;
 };
 
-const setPresenceVisibility = (url) => {
-  const hasWebhookUrl = Boolean(url);
-  presencePanel.classList.toggle('presence-hidden', false);
-
-  if (!hasWebhookUrl && !extensionPresenceActive) {
-    presenceStatus.textContent = 'Waiting for extension events. Keep Meet + waiting screen tabs open.';
-  }
-};
-
-const fetchWebhookEvents = async (url, token) => {
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const response = await fetch(url, {
-    method: 'GET',
-    headers,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Feed request failed with ${response.status}`);
-  }
-
-  const payload = await response.json();
-  const events = normalizeEvents(payload);
-  events.forEach(appendPresenceEvent);
-
-  presenceStatus.textContent = `Connected to feed • Last checked ${formatEventTime(new Date())}`;
-};
-
-const startWebhookPolling = (url, token) => {
-  stopWebhookPolling();
-  setPresenceVisibility(url);
-
-  if (!url) {
-    presenceStatus.textContent = 'Waiting for extension events. Keep Meet + waiting screen tabs open.';
+const renderPresencePeople = (participants) => {
+  if (!Array.isArray(participants)) {
     return;
   }
 
-  presenceStatus.textContent = 'Connecting to event feed...';
+  const normalized = [...new Set(participants.map((name) => String(name).trim()).filter(Boolean))];
+  presencePeople.textContent = '';
 
-  const runFetch = async () => {
-    try {
-      await fetchWebhookEvents(url, token);
-    } catch (error) {
-      console.warn('Event feed error:', error);
-      presenceStatus.textContent =
-        'Feed connection failed. Check URL/token or backend availability.';
-    }
-  };
+  if (!normalized.length) {
+    const empty = document.createElement('li');
+    empty.textContent = 'No participants detected yet.';
+    presencePeople.append(empty);
+    return;
+  }
 
-  void runFetch();
-  webhookPollId = setInterval(() => {
-    void runFetch();
-  }, 5000);
+  normalized.slice(0, 25).forEach((name) => {
+    const item = document.createElement('li');
+    item.textContent = name;
+    presencePeople.append(item);
+  });
 };
 
-const startCountdown = (meetingTitle, lineSizes, minutes, webhookUrl, webhookToken) => {
+const setPresenceVisibility = () => {
+  presencePanel.classList.toggle('presence-hidden', false);
+
+  if (!extensionPresenceActive) {
+    presenceStatus.textContent =
+      'Waiting for extension events. Keep Meet + waiting screen tabs open, and open the People panel in Meet.';
+  }
+};
+const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
   const oneLineTitle = flattenTitle(meetingTitle);
 
   renderTitleWithSizes(waitingTitle, meetingTitle, lineSizes);
+  if (hostName) {
+    hostDisplay.textContent = `Hosted by ${hostName}`;
+    hostDisplay.classList.remove('hidden');
+  } else {
+    hostDisplay.classList.add('hidden');
+    hostDisplay.textContent = '';
+  }
+
   tickerText.textContent = `${oneLineTitle} • Audio check • Camera check • Screen share ready`;
   document.title = `${oneLineTitle} · Waiting Screen`;
 
@@ -383,7 +350,7 @@ const startCountdown = (meetingTitle, lineSizes, minutes, webhookUrl, webhookTok
   clearInterval(timerId);
   timerId = setInterval(updateTimer, 250);
   void startBackgroundAudio();
-  startWebhookPolling(webhookUrl, webhookToken);
+  setPresenceVisibility();
 
   void openFullscreen();
 };
@@ -407,8 +374,7 @@ form.addEventListener('submit', (event) => {
   const meetingTitle = formatTitle(titleInput.value, titleFormatInput.value);
   const lineSizes = titleLineSizesInput.value;
   const minutes = Number.parseInt(minutesInput.value, 10);
-  const webhookUrl = webhookUrlInput.value.trim();
-  const webhookToken = webhookTokenInput.value.trim();
+  const hostName = formatHost(hostInput.value);
 
   if (!minutes || minutes < 1) {
     minutesInput.focus();
@@ -417,7 +383,7 @@ form.addEventListener('submit', (event) => {
 
   extensionPresenceActive = false;
   resetPresence();
-  startCountdown(meetingTitle, lineSizes, minutes, webhookUrl, webhookToken);
+  startCountdown(meetingTitle, lineSizes, minutes, hostName);
 });
 
 musicPresetInput.addEventListener('change', () => {
@@ -442,7 +408,6 @@ musicInput.addEventListener('change', () => {
 });
 
 window.addEventListener('beforeunload', () => {
-  stopWebhookPolling();
   stopBackgroundAudio();
 
   if (localAudioUrl) {

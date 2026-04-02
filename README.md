@@ -5,10 +5,10 @@ A fullscreen meeting waiting-screen web page with configurable title and countdo
 ## Features
 
 - Editable meeting title
+- Optional host name displayed on waiting screen
 - Configurable countdown in minutes (default: 5)
 - Local MP3 picker (loops while countdown is running)
-- Optional Meet event feed URL + token fields (for webhook relay integration)
-- In-page Google Workspace token setup guide (expandable help section)
+- Built-in Chrome extension bridge for Google Meet participant activity
 - Fullscreen mode on start
 - Twitch-inspired "starting soon" visual style (neon timer, live chip, ticker, progress bar)
 - Static site ready for Vercel deployment
@@ -25,45 +25,11 @@ python3 -m http.server 4173
 
 Then open http://localhost:4173.
 
-## Meet join/left feed integration
+## Meet join/left integration (Chrome extension only)
 
-This page can show participant activity if you provide a backend feed URL.
+This page receives participant updates from the included Chrome extension via `window.postMessage`.
 
-It can also receive events directly from a Chrome extension via `window.postMessage`.
-
-### Why backend is required
-
-Google Meet event delivery is typically handled server-side (for example via Google Workspace Events + Pub/Sub + your backend), then your backend exposes a safe endpoint for this webpage.
-
-### Expected feed response
-
-Set **Meet event feed URL** in setup, and return either:
-
-```json
-[
-  { "id": "evt-1", "type": "joined", "name": "Alex", "timestamp": "2026-04-02T12:30:00Z" },
-  { "id": "evt-2", "type": "left", "name": "Sam", "timestamp": "2026-04-02T12:32:00Z" }
-]
-```
-
-or:
-
-```json
-{
-  "events": [
-    { "id": "evt-1", "type": "joined", "name": "Alex", "timestamp": "2026-04-02T12:30:00Z" }
-  ]
-}
-```
-
-Notes:
-- `type` must be `joined` or `left`.
-- Events are polled every 5 seconds.
-- Endpoint must allow browser CORS.
-
-### Optional Chrome extension bridge
-
-If you already have (or build) a Chrome extension that detects Google Meet attendance changes, it can send events to this page with:
+Expected event message:
 
 ```js
 window.postMessage(
@@ -81,6 +47,19 @@ window.postMessage(
 ```
 
 You can also send multiple events in one message using `events: [...]`.
+
+Optional snapshot message (used by included extension to show current participant list):
+
+```js
+window.postMessage(
+  {
+    type: 'meet-presence-snapshot',
+    participants: ['Alex', 'Sam'],
+    timestamp: new Date().toISOString(),
+  },
+  '*'
+);
+```
 
 ## Deploy to Vercel
 
@@ -172,7 +151,9 @@ When the extension detects participant changes, it sends events as:
 }
 ```
 
+It also sends participant snapshots so the web page can show the current user list.
+
 ### Notes and limitations
 
 - Google Meet's internal DOM can change at any time, which may affect detection reliability.
-- For production-grade accuracy, prefer the backend/webhook approach described earlier.
+- Meet's internal DOM changes over time; selector updates may be required in `chrome-extension/content.js`.

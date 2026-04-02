@@ -47,6 +47,13 @@ function startMeetActivityTracker() {
       });
     }
 
+    chrome.runtime.sendMessage(
+      { type: 'meet-snapshot', participants: currentNames, timestamp: new Date().toISOString() },
+      () => {
+        void chrome.runtime.lastError;
+      }
+    );
+
     previousSet = currentSet;
   };
 

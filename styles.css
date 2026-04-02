@@ -543,24 +543,6 @@ button {
   font-size: 0.95rem;
 }
 
-.status-checklist-panel {
-  width: min(88vw, 740px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 0.85rem 1rem;
-  text-align: left;
-}
-
-.status-checklist-list {
-  margin: 0.45rem 0 0;
-  padding-left: 1.2rem;
-  white-space: nowrap;
-  color: #d9f6ff;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .waiting-panel {
   text-align: center;
   display: grid;
@@ -701,9 +683,7 @@ body[data-visual-mode='gentle'] .liquid-bg,
 body[data-visual-mode='gentle'] .aurora,
 body[data-visual-mode='gentle'] .nebula-ring,
 body[data-visual-mode='gentle'] .prism-overlay,
-body[data-visual-mode='gentle'] .grid-overlay,
-body[data-visual-mode='gentle'] .in-progress-spinner,
-body[data-visual-mode='gentle'] .in-progress-text {
+body[data-visual-mode='gentle'] .grid-overlay {
   animation: none !important;
 }
 
@@ -782,8 +762,8 @@ body[data-visual-mode='gentle'] .grid-overlay {
 .ticker-track {
   display: inline-block;
   white-space: nowrap;
-  padding-left: 100%;
-  animation: tickerMarquee 18s linear infinite;
+  padding-right: 2rem;
+  animation: tickerMarquee 20s linear infinite;
 }
 
 .presence-panel {
@@ -845,10 +825,10 @@ body[data-visual-mode='gentle'] .grid-overlay {
 
 @keyframes tickerMarquee {
   0% {
-    transform: translateX(0);
+    transform: translateX(100%);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 

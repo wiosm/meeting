@@ -2,7 +2,6 @@ const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
 const hostInput = document.getElementById('meetingHost');
-const tickerChecklistInput = document.getElementById('tickerChecklist');
 const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
 const backgroundThemeInput = document.getElementById('backgroundTheme');
@@ -22,7 +21,6 @@ const configPanel = document.getElementById('configPanel');
 const waitingPanel = document.getElementById('waitingPanel');
 const tickerText = document.getElementById('tickerText');
 const tickerTrack = document.getElementById('tickerTrack');
-const statusChecklistDisplay = document.getElementById('statusChecklistDisplay');
 const presenceStatus = document.getElementById('presenceStatus');
 const presenceEvents = document.getElementById('presenceEvents');
 const presencePeople = document.getElementById('presencePeople');
@@ -86,13 +84,6 @@ const formatTitle = (rawTitle, format) => {
 
 const flattenTitle = (title) => title.replace(/\s*\n\s*/g, ' • ');
 const formatHost = (rawHost) => rawHost.trim().replace(/\s+/g, ' ');
-const parseChecklistItems = (rawValue) =>
-  rawValue
-    .split('\n')
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .slice(0, 8);
-
 const parseLineSizes = (lineSizesText, lineCount) => {
   const sizeRows = lineSizesText
     .split('\n')
@@ -192,15 +183,7 @@ const showInProgressState = () => {
 const setTickerMessage = (message) => {
   const normalized = message.trim();
   tickerText.setAttribute('aria-label', normalized);
-  tickerTrack.textContent = `${normalized} • ${normalized} •`;
-};
-
-const renderStatusChecklist = (items) => {
-  statusChecklistDisplay.textContent = '';
-  const safeItems = items.length ? items : ['Audio check', 'Camera check', 'Screen share ready'];
-  const item = document.createElement('li');
-  item.textContent = safeItems.join(' • ');
-  statusChecklistDisplay.append(item);
+  tickerTrack.textContent = `${normalized} •`;
 };
 
 const stopPreviewAudio = () => {
@@ -475,10 +458,8 @@ const applyVisualMode = (isGentle) => {
   document.body.dataset.visualMode = isGentle ? 'gentle' : 'normal';
 };
 
-const startCountdown = (meetingTitle, lineSizes, minutes, hostName, checklistText) => {
+const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
   const oneLineTitle = flattenTitle(meetingTitle);
-  const checklistItems = parseChecklistItems(checklistText);
-  const checklistSegment = checklistItems.length ? checklistItems.join(' • ') : 'Audio check • Camera check • Screen share ready';
   const trackName = localAudioUrl ? 'Local upload' : musicLabelByUrl.get(selectedAudioUrl) || 'No music';
 
   renderTitleWithSizes(waitingTitle, meetingTitle, lineSizes);
@@ -490,8 +471,7 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName, checklistTex
     hostDisplay.textContent = '';
   }
 
-  setTickerMessage(`${oneLineTitle} • Track: ${trackName} • ${checklistSegment}`);
-  renderStatusChecklist(checklistItems);
+  setTickerMessage(`${oneLineTitle} • Track: ${trackName}`);
   countdownPageTitle = `${oneLineTitle} · Waiting Screen`;
   document.title = countdownPageTitle;
 
@@ -541,7 +521,6 @@ form.addEventListener('submit', (event) => {
   const lineSizes = titleLineSizesInput.value;
   const minutes = Number.parseInt(minutesInput.value, 10);
   const hostName = formatHost(hostInput.value);
-  const checklistText = tickerChecklistInput.value;
 
   if (!minutes || minutes < 1) {
     minutesInput.focus();
@@ -550,7 +529,7 @@ form.addEventListener('submit', (event) => {
 
   extensionPresenceActive = false;
   resetPresence();
-  startCountdown(meetingTitle, lineSizes, minutes, hostName, checklistText);
+  startCountdown(meetingTitle, lineSizes, minutes, hostName);
 });
 
 musicPresetInput.addEventListener('change', () => {

@@ -27,7 +27,7 @@
 
       <section class="panel config-panel" id="configPanel">
         <p class="eyebrow">Meeting Room</p>
-        <h1 id="titlePreview">iOS Dailiy Standup</h1>
+        <h1 id="titlePreview">iOS Daily Standup</h1>
         <p class="subtitle">
           Twitch-style "starting soon" look inspired by your reference video.
           Configure your title and timer, then press start.
@@ -42,7 +42,7 @@
               maxlength="140"
               placeholder="Type your meeting title (multiple lines supported)"
               required
-            >iOS Dailiy Standup</textarea>
+            >iOS Daily Standup</textarea>
           </label>
 
           <label>
@@ -84,6 +84,16 @@
               maxlength="80"
               placeholder="e.g. Alex Johnson"
             />
+          </label>
+
+          <label>
+            Animated background style
+            <select id="backgroundTheme">
+              <option value="nebula">Nebula Glow</option>
+              <option value="sunset">Sunset Wave</option>
+              <option value="matrix">Matrix Pulse</option>
+              <option value="frost">Frost Bloom</option>
+            </select>
           </label>
 
           <label>
@@ -141,7 +151,7 @@
       <section class="panel waiting-panel hidden" id="waitingPanel">
         <div class="live-chip" aria-hidden="true"><span></span> LIVE EVENT</div>
         <p class="badge">Starting in</p>
-        <h2 id="meetingTitleDisplay" class="waiting-title">iOS Dailiy Standup</h2>
+        <h2 id="meetingTitleDisplay" class="waiting-title">iOS Daily Standup</h2>
         <p id="meetingHostDisplay" class="host-pill hidden">Hosted by Alex Johnson</p>
 
         <div class="countdown-stage">

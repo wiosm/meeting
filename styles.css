@@ -30,6 +30,51 @@ body {
   overflow-y: auto;
 }
 
+body[data-bg-theme='nebula'] {
+  --bg: #020207;
+  --panel: rgba(5, 8, 18, 0.78);
+  --panel-border: rgba(201, 226, 255, 0.2);
+  --accent: #50ecff;
+  --accent-2: #a771ff;
+  --danger: #ff4d8d;
+}
+
+body[data-bg-theme='sunset'] {
+  --bg: #1a0814;
+  --panel: rgba(26, 10, 25, 0.76);
+  --panel-border: rgba(255, 203, 164, 0.28);
+  --accent: #ff9f5d;
+  --accent-2: #ff5fa2;
+  --danger: #ff4d8d;
+  background: radial-gradient(circle at 12% 12%, #4f113d 0, transparent 37%),
+    radial-gradient(circle at 86% 16%, #933417 0, transparent 42%),
+    radial-gradient(circle at 52% 86%, #3f173a 0, transparent 38%), var(--bg);
+}
+
+body[data-bg-theme='matrix'] {
+  --bg: #030f0a;
+  --panel: rgba(3, 20, 13, 0.8);
+  --panel-border: rgba(125, 255, 180, 0.24);
+  --accent: #4dff9f;
+  --accent-2: #30d2be;
+  --danger: #7dffb4;
+  background: radial-gradient(circle at 15% 10%, #0f532f 0, transparent 37%),
+    radial-gradient(circle at 80% 18%, #0d4538 0, transparent 42%),
+    radial-gradient(circle at 50% 82%, #07271e 0, transparent 38%), var(--bg);
+}
+
+body[data-bg-theme='frost'] {
+  --bg: #07111d;
+  --panel: rgba(8, 20, 34, 0.78);
+  --panel-border: rgba(185, 233, 255, 0.24);
+  --accent: #7fd5ff;
+  --accent-2: #9fbeff;
+  --danger: #7bd8ff;
+  background: radial-gradient(circle at 15% 10%, #174a74 0, transparent 37%),
+    radial-gradient(circle at 84% 20%, #1d3268 0, transparent 42%),
+    radial-gradient(circle at 50% 88%, #0a2e4f 0, transparent 38%), var(--bg);
+}
+
 .app-shell {
   min-height: 100vh;
   display: grid;
@@ -105,6 +150,24 @@ body {
   animation: gridDrift 20s linear infinite;
 }
 
+body[data-bg-theme='sunset'] .grid-overlay {
+  opacity: 0.25;
+  background-image: linear-gradient(rgba(255, 196, 170, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 146, 163, 0.1) 1px, transparent 1px);
+}
+
+body[data-bg-theme='matrix'] .grid-overlay {
+  opacity: 0.4;
+  background-image: linear-gradient(rgba(77, 255, 159, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(48, 210, 190, 0.11) 1px, transparent 1px);
+}
+
+body[data-bg-theme='frost'] .grid-overlay {
+  opacity: 0.34;
+  background-image: linear-gradient(rgba(185, 233, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(159, 190, 255, 0.1) 1px, transparent 1px);
+}
+
 .sparkle-overlay {
   position: absolute;
   inset: -20%;
@@ -134,6 +197,10 @@ body {
   animation: scanlineSlide 8s linear infinite;
 }
 
+body[data-bg-theme='frost'] .scanline-overlay {
+  opacity: 0.16;
+}
+
 .aurora {
   position: absolute;
   border-radius: 50%;
@@ -158,6 +225,30 @@ body {
   bottom: 4%;
   right: 12%;
   animation: floatB 8.5s ease-in-out infinite;
+}
+
+body[data-bg-theme='sunset'] .aurora-a {
+  background: #ff8d4f;
+}
+
+body[data-bg-theme='sunset'] .aurora-b {
+  background: #ff4ca8;
+}
+
+body[data-bg-theme='matrix'] .aurora-a {
+  background: #3df290;
+}
+
+body[data-bg-theme='matrix'] .aurora-b {
+  background: #1cd2bf;
+}
+
+body[data-bg-theme='frost'] .aurora-a {
+  background: #6ec6ff;
+}
+
+body[data-bg-theme='frost'] .aurora-b {
+  background: #8fb4ff;
 }
 
 .nebula-ring {

@@ -74,6 +74,16 @@ Starts Soon</textarea>
           </label>
 
           <label>
+            Host name
+            <input
+              id="meetingHost"
+              type="text"
+              maxlength="80"
+              placeholder="e.g. Alex Johnson"
+            />
+          </label>
+
+          <label>
             Background music (built-in tracks)
             <select id="meetingMusicPreset">
               <option value="">No music</option>
@@ -94,17 +104,8 @@ Starts Soon</textarea>
             <input id="meetingMusic" type="file" accept="audio/mpeg,audio/mp3" />
           </label>
 
-          <label>
-            Meet event feed URL (from your webhook relay)
-            <input
-              id="meetWebhookUrl"
-              type="url"
-              placeholder="https://your-backend.example.com/api/meet-events"
-            />
-          </label>
-
           <p class="inline-help">
-            Optional: a Chrome extension can push join/left events directly to this page via
+            Use the included Chrome extension to push Meet participant updates directly to this page via
             <code>window.postMessage</code> using
             <code>{ type: "meet-presence-event", event: { type: "joined"|"left", name, timestamp, id? } }</code>.
             <span class="inline-help-actions">
@@ -124,75 +125,8 @@ Starts Soon</textarea>
             <code>chrome-extension/</code>.
           </p>
 
-          <label>
-            Event feed token (optional)
-            <input
-              id="meetWebhookToken"
-              type="password"
-              placeholder="Bearer token or shared secret"
-            />
-          </label>
-
           <button id="startBtn" type="submit">Start Waiting Screen</button>
         </form>
-
-        <details class="workspace-guide">
-          <summary>How to connect Google Workspace token (guide)</summary>
-          <ol>
-            <li>
-              Open
-              <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer">Google Cloud project creator</a>,
-              create/select a project, then open
-              <a href="https://console.cloud.google.com/apis/library" target="_blank" rel="noopener noreferrer">API Library</a>
-              and enable APIs you need (for example Google Meet + Workspace Events).
-            </li>
-            <li>
-              Configure the
-              <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener noreferrer">OAuth consent screen</a>
-              (usually <strong>Internal</strong> for Workspace organizations), then add required scopes.
-            </li>
-            <li>
-              Go to
-              <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Credentials</a>
-              → <strong>Create credentials</strong> → <strong>OAuth client ID</strong>.
-              Save your <strong>Client ID</strong> and <strong>Client secret</strong>, and set your backend callback URL in
-              <strong>Authorized redirect URIs</strong>.
-            </li>
-            <li>
-              Run OAuth once to get tokens:
-              <ol>
-                <li>Use your backend auth route <em>or</em> open the <a href="https://developers.google.com/oauthplayground/" target="_blank" rel="noopener noreferrer">OAuth 2.0 Playground</a>.</li>
-                <li>In Playground: click the gear icon, check <strong>Use your own OAuth credentials</strong>, and paste your client ID/secret.</li>
-                <li>Pick required scopes, then click <strong>Authorize APIs</strong>.</li>
-                <li>Click <strong>Exchange authorization code for tokens</strong>.</li>
-                <li>Copy the <strong>refresh token</strong> (long-lived) to your backend secret store. Do <strong>not</strong> paste refresh token into this page.</li>
-              </ol>
-            </li>
-            <li>
-              Your backend uses refresh token to mint access tokens and call Google APIs, then expose a safe feed endpoint for this page
-              (the <em>Meet event feed URL</em> field).
-            </li>
-            <li>
-              For this screen's <em>Event feed token</em> field, create your own shared token in backend (for example a random 32+ character secret) and send it as
-              <code>Authorization: Bearer YOUR_TOKEN</code>. This token is for <strong>your backend endpoint</strong>, not a raw Google OAuth token.
-            </li>
-          </ol>
-          <p>
-            Official docs:
-            <a href="https://developers.google.com/workspace/guides/create-credentials" target="_blank" rel="noopener noreferrer">Create credentials</a>
-            •
-            <a href="https://developers.google.com/workspace/events/guides/auth" target="_blank" rel="noopener noreferrer">Workspace Events auth scopes</a>
-            •
-            <a href="https://developers.google.com/workspace/events" target="_blank" rel="noopener noreferrer">Workspace Events overview</a>
-          </p>
-          <p>
-            Alternative approach: build a Chrome extension content script that observes the Meet participant panel and forwards
-            events to this waiting screen with <code>window.postMessage</code>. This page supports that message contract. You can
-            install the included extension by following
-            <a href="https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked" target="_blank" rel="noopener noreferrer">Chrome's Load unpacked guide</a>
-            and selecting this repo's <code>chrome-extension/</code> folder.
-          </p>
-        </details>
       </section>
 
       <section class="panel waiting-panel hidden" id="waitingPanel">
@@ -200,6 +134,7 @@ Starts Soon</textarea>
         <p class="badge">Starting in</p>
         <h2 id="meetingTitleDisplay" class="waiting-title">Weekly Sync
 Starts Soon</h2>
+        <p id="meetingHostDisplay" class="host-pill hidden">Hosted by Alex Johnson</p>
 
         <div class="countdown-stage">
           <p id="countdownDisplay" class="timer" aria-live="polite">
@@ -222,11 +157,13 @@ Starts Soon</h2>
         <section class="presence-panel" id="presencePanel" aria-live="polite">
           <p class="presence-title">Meet attendance activity</p>
           <p class="presence-status" id="presenceStatus">
-            No event feed connected yet.
+            Waiting for Chrome extension events.
           </p>
           <p class="presence-counts">
             Joined: <span id="joinedCount">0</span> • Left: <span id="leftCount">0</span>
           </p>
+          <p class="presence-title">Current participants</p>
+          <ul id="presencePeople" class="presence-events"></ul>
           <ul id="presenceEvents" class="presence-events"></ul>
         </section>
 

@@ -52,6 +52,7 @@ let knownEventIds = new Set();
 let extensionPresenceActive = false;
 let hasReceivedPresenceEvent = false;
 let inProgressShown = false;
+let countdownPageTitle = 'Meeting Waiting Screen';
 const musicLabelByUrl = new Map(
   Array.from(musicPresetInput.options)
     .filter((option) => option.value)
@@ -180,9 +181,6 @@ const showCountdownState = () => {
 };
 
 const showInProgressState = () => {
-  if (inProgressShown) {
-    return;
-  }
   inProgressShown = true;
   countdownStage.classList.add('hidden');
   countdownStage.hidden = true;
@@ -270,6 +268,14 @@ const updateTimer = () => {
 
   setBarProgress(diff);
   applyBackgroundAudioFade(diff);
+
+  if (diff > 0 && inProgressShown) {
+    showCountdownState();
+  }
+
+  if (diff > 0 && document.title !== countdownPageTitle) {
+    document.title = countdownPageTitle;
+  }
 
   if (diff <= 0) {
     clearInterval(timerId);
@@ -476,7 +482,8 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName, checklistTex
   }
 
   setTickerMessage(`${oneLineTitle} • Track: ${trackName} • ${checklistSegment}`);
-  document.title = `${oneLineTitle} · Waiting Screen`;
+  countdownPageTitle = `${oneLineTitle} · Waiting Screen`;
+  document.title = countdownPageTitle;
 
   configPanel.classList.add('hidden');
   waitingPanel.classList.remove('hidden');

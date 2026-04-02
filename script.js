@@ -198,12 +198,9 @@ const setTickerMessage = (message) => {
 const renderStatusChecklist = (items) => {
   statusChecklistDisplay.textContent = '';
   const safeItems = items.length ? items : ['Audio check', 'Camera check', 'Screen share ready'];
-
-  safeItems.forEach((itemText) => {
-    const item = document.createElement('li');
-    item.textContent = itemText;
-    statusChecklistDisplay.append(item);
-  });
+  const item = document.createElement('li');
+  item.textContent = safeItems.join(' • ');
+  statusChecklistDisplay.append(item);
 };
 
 const stopPreviewAudio = () => {

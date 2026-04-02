@@ -4,10 +4,11 @@ const minutesInput = document.getElementById('meetingMinutes');
 const titlePreview = document.getElementById('titlePreview');
 const waitingTitle = document.getElementById('meetingTitleDisplay');
 const countdownDisplay = document.getElementById('countdownDisplay');
-const ringProgress = document.getElementById('ringProgress');
+const barProgress = document.getElementById('barProgress');
 const configPanel = document.getElementById('configPanel');
 const waitingPanel = document.getElementById('waitingPanel');
 const resetBtn = document.getElementById('resetBtn');
+const tickerText = document.getElementById('tickerText');
 
 const digitMap = {
   m1: countdownDisplay.querySelector('[data-digit="m1"]'),
@@ -16,16 +17,10 @@ const digitMap = {
   s2: countdownDisplay.querySelector('[data-digit="s2"]'),
 };
 
-const RING_RADIUS = 102;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-
 let totalSeconds = 5 * 60;
 let endTime = null;
 let timerId = null;
 let lastRenderedTime = '05:00';
-
-ringProgress.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
-ringProgress.style.strokeDashoffset = '0';
 
 const toMMSS = (secondsLeft) => {
   const mins = Math.floor(secondsLeft / 60)
@@ -59,10 +54,9 @@ const setTimerDigits = (formattedTime) => {
   });
 };
 
-const setRingProgress = (secondsLeft) => {
-  const ratio = totalSeconds > 0 ? secondsLeft / totalSeconds : 0;
-  const dashOffset = RING_CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, ratio)));
-  ringProgress.style.strokeDashoffset = dashOffset.toString();
+const setBarProgress = (secondsLeft) => {
+  const elapsedRatio = totalSeconds > 0 ? (totalSeconds - secondsLeft) / totalSeconds : 1;
+  barProgress.style.width = `${Math.max(0, Math.min(1, elapsedRatio)) * 100}%`;
 };
 
 const updateTimer = () => {
@@ -75,13 +69,14 @@ const updateTimer = () => {
     lastRenderedTime = nextDisplay;
   }
 
-  setRingProgress(diff);
+  setBarProgress(diff);
 
   if (diff <= 0) {
     clearInterval(timerId);
     timerId = null;
     lastRenderedTime = '00:00';
     setTimerDigits('00:00');
+    tickerText.textContent = 'You are live now • Meeting room should be ready • Let attendees in';
     document.title = 'Meeting should begin now';
   }
 };
@@ -100,6 +95,7 @@ const openFullscreen = async () => {
 
 const startCountdown = (meetingTitle, minutes) => {
   waitingTitle.textContent = meetingTitle;
+  tickerText.textContent = `${meetingTitle} • Audio check • Camera check • Screen share ready`;
   document.title = `${meetingTitle} · Waiting Screen`;
 
   configPanel.classList.add('hidden');
@@ -109,7 +105,7 @@ const startCountdown = (meetingTitle, minutes) => {
   endTime = Date.now() + totalSeconds * 1000;
 
   setTimerDigits(toMMSS(totalSeconds));
-  setRingProgress(totalSeconds);
+  setBarProgress(totalSeconds);
   updateTimer();
 
   clearInterval(timerId);
@@ -127,8 +123,10 @@ const reset = () => {
   waitingPanel.classList.add('hidden');
 
   setTimerDigits('05:00');
-  setRingProgress(totalSeconds);
+  setBarProgress(totalSeconds);
   lastRenderedTime = '05:00';
+  tickerText.textContent =
+    'Stream intro mode active • Audio check • Camera check • Screen share ready';
   document.title = 'Meeting Waiting Screen';
 };
 

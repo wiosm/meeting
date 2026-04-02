@@ -6,6 +6,7 @@ const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
 const backgroundThemeInput = document.getElementById('backgroundTheme');
 const gentleVisualsInput = document.getElementById('gentleVisuals');
+const gentleVisualsWaitingInput = document.getElementById('gentleVisualsWaiting');
 const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
 const previewMusicBtn = document.getElementById('previewMusicBtn');
@@ -19,6 +20,7 @@ const countdownDisplay = document.getElementById('countdownDisplay');
 const barProgress = document.getElementById('barProgress');
 const configPanel = document.getElementById('configPanel');
 const waitingPanel = document.getElementById('waitingPanel');
+const editConfigBtn = document.getElementById('editConfigBtn');
 const tickerText = document.getElementById('tickerText');
 const tickerTrack = document.getElementById('tickerTrack');
 const presenceStatus = document.getElementById('presenceStatus');
@@ -180,6 +182,27 @@ const showInProgressState = () => {
   inProgressStage.hidden = false;
 };
 
+const returnToConfig = async () => {
+  clearInterval(timerId);
+  timerId = null;
+  endTime = null;
+  stopBackgroundAudio();
+  stopPreviewAudio();
+  showCountdownState();
+  waitingPanel.classList.add('hidden');
+  configPanel.classList.remove('hidden');
+  countdownPageTitle = 'Meeting Waiting Screen';
+  document.title = countdownPageTitle;
+
+  if (document.fullscreenElement && document.exitFullscreen) {
+    try {
+      await document.exitFullscreen();
+    } catch (error) {
+      console.warn('Exit fullscreen failed:', error);
+    }
+  }
+};
+
 const setTickerMessage = (message) => {
   const normalized = message.trim();
   tickerText.setAttribute('aria-label', normalized);
@@ -246,6 +269,12 @@ const applyBackgroundAudioFade = (secondsLeft) => {
     return;
   }
   backgroundAudio.volume = BACKGROUND_AUDIO_VOLUME;
+};
+
+const setGentleVisuals = (isEnabled) => {
+  gentleVisualsInput.checked = isEnabled;
+  gentleVisualsWaitingInput.checked = isEnabled;
+  applyVisualMode(isEnabled);
 };
 
 const updateTimer = () => {
@@ -511,7 +540,10 @@ backgroundThemeInput.addEventListener('change', () => {
   applyBackgroundTheme(backgroundThemeInput.value);
 });
 gentleVisualsInput.addEventListener('change', () => {
-  applyVisualMode(gentleVisualsInput.checked);
+  setGentleVisuals(gentleVisualsInput.checked);
+});
+gentleVisualsWaitingInput.addEventListener('change', () => {
+  setGentleVisuals(gentleVisualsWaitingInput.checked);
 });
 
 form.addEventListener('submit', (event) => {
@@ -558,6 +590,9 @@ musicInput.addEventListener('change', () => {
 previewMusicBtn.addEventListener('click', () => {
   void togglePreviewAudio();
 });
+editConfigBtn.addEventListener('click', () => {
+  void returnToConfig();
+});
 
 window.addEventListener('beforeunload', () => {
   stopBackgroundAudio();
@@ -573,7 +608,8 @@ window.addEventListener('message', handleExtensionPresenceMessage);
 syncSelectedAudio();
 applyBackgroundTheme(backgroundThemeInput.value);
 if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  gentleVisualsInput.checked = true;
+  setGentleVisuals(true);
+} else {
+  setGentleVisuals(gentleVisualsInput.checked);
 }
-applyVisualMode(gentleVisualsInput.checked);
 updateTitlePreview();

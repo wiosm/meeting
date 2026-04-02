@@ -89,6 +89,18 @@
           </label>
 
           <label>
+            Status checklist ticker (one item per line)
+            <textarea
+              id="tickerChecklist"
+              rows="3"
+              maxlength="180"
+              placeholder="Audio check&#10;Camera check&#10;Screen share ready"
+            >Audio check
+Camera check
+Screen share ready</textarea>
+          </label>
+
+          <label>
             Animated background style
             <select id="backgroundTheme">
               <option value="nebula">Nebula Glow</option>
@@ -176,7 +188,7 @@
           </p>
         </div>
 
-        <div id="inProgressStage" class="in-progress-stage hidden" aria-live="polite">
+        <div id="inProgressStage" class="in-progress-stage hidden" hidden aria-live="polite">
           <span class="in-progress-spinner" aria-hidden="true"></span>
           <p class="in-progress-text">Meeting in progress</p>
         </div>
@@ -186,7 +198,7 @@
         </div>
 
         <p class="ticker" id="tickerText">
-          Stream intro mode active • Audio check • Camera check • Screen share ready
+          <span class="ticker-track" id="tickerTrack">Stream intro mode active • Audio check • Camera check • Screen share ready • Stream intro mode active • Audio check • Camera check • Screen share ready •</span>
         </p>
 
         <section class="presence-panel" id="presencePanel" aria-live="polite">

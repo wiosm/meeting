@@ -2,6 +2,7 @@ const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
 const hostInput = document.getElementById('meetingHost');
+const tickerChecklistInput = document.getElementById('tickerChecklist');
 const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
 const backgroundThemeInput = document.getElementById('backgroundTheme');
@@ -20,6 +21,7 @@ const barProgress = document.getElementById('barProgress');
 const configPanel = document.getElementById('configPanel');
 const waitingPanel = document.getElementById('waitingPanel');
 const tickerText = document.getElementById('tickerText');
+const tickerTrack = document.getElementById('tickerTrack');
 const presenceStatus = document.getElementById('presenceStatus');
 const presenceEvents = document.getElementById('presenceEvents');
 const presencePeople = document.getElementById('presencePeople');
@@ -82,6 +84,12 @@ const formatTitle = (rawTitle, format) => {
 
 const flattenTitle = (title) => title.replace(/\s*\n\s*/g, ' • ');
 const formatHost = (rawHost) => rawHost.trim().replace(/\s+/g, ' ');
+const parseChecklistItems = (rawValue) =>
+  rawValue
+    .split('\n')
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .slice(0, 8);
 
 const parseLineSizes = (lineSizesText, lineCount) => {
   const sizeRows = lineSizesText
@@ -166,7 +174,9 @@ const updatePreviewStatus = () => {
 const showCountdownState = () => {
   inProgressShown = false;
   countdownStage.classList.remove('hidden');
+  countdownStage.hidden = false;
   inProgressStage.classList.add('hidden');
+  inProgressStage.hidden = true;
 };
 
 const showInProgressState = () => {
@@ -175,7 +185,15 @@ const showInProgressState = () => {
   }
   inProgressShown = true;
   countdownStage.classList.add('hidden');
+  countdownStage.hidden = true;
   inProgressStage.classList.remove('hidden');
+  inProgressStage.hidden = false;
+};
+
+const setTickerMessage = (message) => {
+  const normalized = message.trim();
+  tickerText.setAttribute('aria-label', normalized);
+  tickerTrack.textContent = `${normalized} • ${normalized} •`;
 };
 
 const stopPreviewAudio = () => {
@@ -259,7 +277,7 @@ const updateTimer = () => {
     lastRenderedTime = '00:00';
     showInProgressState();
     stopBackgroundAudio();
-    tickerText.textContent = 'You are live now • Meeting room should be ready • Let attendees in';
+    setTickerMessage('You are live now • Meeting room should be ready • Let attendees in');
     document.title = 'Meeting in progress';
   }
 };
@@ -289,8 +307,7 @@ const startBackgroundAudio = async () => {
     await audio.play();
   } catch (error) {
     console.warn('Audio autoplay failed:', error);
-    tickerText.textContent =
-      'Music could not autoplay. Click anywhere on the page to allow playback.';
+    setTickerMessage('Music could not autoplay. Click anywhere on the page to allow playback.');
   }
 };
 
@@ -443,8 +460,10 @@ const applyVisualMode = (isGentle) => {
   document.body.dataset.visualMode = isGentle ? 'gentle' : 'normal';
 };
 
-const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
+const startCountdown = (meetingTitle, lineSizes, minutes, hostName, checklistText) => {
   const oneLineTitle = flattenTitle(meetingTitle);
+  const checklistItems = parseChecklistItems(checklistText);
+  const checklistSegment = checklistItems.length ? checklistItems.join(' • ') : 'Audio check • Camera check • Screen share ready';
   const trackName = localAudioUrl ? 'Local upload' : musicLabelByUrl.get(selectedAudioUrl) || 'No music';
 
   renderTitleWithSizes(waitingTitle, meetingTitle, lineSizes);
@@ -456,7 +475,7 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
     hostDisplay.textContent = '';
   }
 
-  tickerText.textContent = `${oneLineTitle} • Track: ${trackName} • Audio check • Camera check • Screen share ready`;
+  setTickerMessage(`${oneLineTitle} • Track: ${trackName} • ${checklistSegment}`);
   document.title = `${oneLineTitle} · Waiting Screen`;
 
   configPanel.classList.add('hidden');
@@ -505,6 +524,7 @@ form.addEventListener('submit', (event) => {
   const lineSizes = titleLineSizesInput.value;
   const minutes = Number.parseInt(minutesInput.value, 10);
   const hostName = formatHost(hostInput.value);
+  const checklistText = tickerChecklistInput.value;
 
   if (!minutes || minutes < 1) {
     minutesInput.focus();
@@ -513,7 +533,7 @@ form.addEventListener('submit', (event) => {
 
   extensionPresenceActive = false;
   resetPresence();
-  startCountdown(meetingTitle, lineSizes, minutes, hostName);
+  startCountdown(meetingTitle, lineSizes, minutes, hostName, checklistText);
 });
 
 musicPresetInput.addEventListener('change', () => {

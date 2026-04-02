@@ -36,6 +36,7 @@ let joinedCount = 0;
 let leftCount = 0;
 let knownEventIds = new Set();
 let webhookPollId = null;
+let extensionPresenceActive = false;
 
 const toMMSS = (secondsLeft) => {
   const mins = Math.floor(secondsLeft / 60)
@@ -199,6 +200,22 @@ const appendPresenceEvent = (event) => {
   }
 };
 
+const normalizeMessageEvent = (payload) => {
+  if (!payload || payload.type !== 'meet-presence-event') {
+    return [];
+  }
+
+  if (Array.isArray(payload.events)) {
+    return payload.events;
+  }
+
+  if (payload.event && typeof payload.event === 'object') {
+    return [payload.event];
+  }
+
+  return [];
+};
+
 const resetPresence = () => {
   joinedCount = 0;
   leftCount = 0;
@@ -216,6 +233,22 @@ const stopWebhookPolling = () => {
 
   clearInterval(webhookPollId);
   webhookPollId = null;
+};
+
+const handleExtensionPresenceMessage = (messageEvent) => {
+  const events = normalizeMessageEvent(messageEvent.data);
+  if (!events.length) {
+    return;
+  }
+
+  setPresenceVisibility('extension');
+  events.forEach(appendPresenceEvent);
+
+  if (!extensionPresenceActive) {
+    extensionPresenceActive = true;
+  }
+
+  presenceStatus.textContent = `Receiving extension events • Last update ${formatEventTime(new Date())}`;
 };
 
 const setPresenceVisibility = (url) => {
@@ -308,6 +341,7 @@ form.addEventListener('submit', (event) => {
     return;
   }
 
+  extensionPresenceActive = false;
   resetPresence();
   startCountdown(meetingTitle, minutes, webhookUrl, webhookToken);
 });
@@ -339,5 +373,7 @@ window.addEventListener('beforeunload', () => {
     URL.revokeObjectURL(localAudioUrl);
   }
 });
+
+window.addEventListener('message', handleExtensionPresenceMessage);
 
 syncSelectedAudio();

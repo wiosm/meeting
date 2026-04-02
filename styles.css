@@ -172,6 +172,18 @@ label {
   font-weight: 600;
 }
 
+.inline-help {
+  margin: -0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.inline-help code {
+  color: #d2f8ff;
+  word-break: break-word;
+}
+
 input,
 select {
   border: 1px solid rgba(255, 255, 255, 0.24);

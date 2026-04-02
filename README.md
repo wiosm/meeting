@@ -1,13 +1,13 @@
 # Meeting Waiting Screen
 
-A fancy fullscreen waiting-screen web page for meetings with configurable title and countdown timer.
+A fullscreen meeting waiting-screen web page with configurable title and countdown timer.
 
 ## Features
 
 - Editable meeting title
 - Configurable countdown in minutes (default: 5)
 - Fullscreen mode on start
-- Glassmorphism + animated aurora style UI
+- Twitch-inspired "starting soon" visual style (neon timer, live chip, ticker, progress bar)
 - Static site ready for Vercel deployment
 
 ## Run locally

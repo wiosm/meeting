@@ -134,6 +134,35 @@ h2 {
   gap: 1rem;
 }
 
+.workspace-guide {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  padding-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.workspace-guide summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.workspace-guide ol {
+  margin: 0.65rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.workspace-guide p {
+  margin: 0.6rem 0 0;
+}
+
+.workspace-guide a {
+  color: #b6f7ff;
+}
+
 label {
   display: grid;
   gap: 0.45rem;
@@ -200,6 +229,8 @@ button {
 
 .waiting-title {
   max-width: 20ch;
+  font-size: clamp(2.4rem, 7vw, 5.5rem);
+  line-height: 1.08;
   background: linear-gradient(96deg, #d6ffff, #c9d6ff 40%, #ffc6f4 72%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -301,6 +332,58 @@ button {
   animation: tickerMove 13s linear infinite;
 }
 
+.presence-panel {
+  width: min(86vw, 700px);
+  margin-top: 0.65rem;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  background: rgba(4, 8, 24, 0.5);
+  padding: 0.8rem 0.9rem;
+}
+
+.presence-title,
+.presence-status,
+.presence-counts {
+  margin: 0;
+}
+
+.presence-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.presence-status {
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.presence-counts {
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.presence-events {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.presence-events li {
+  padding: 0.36rem 0.52rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.88rem;
+}
+
 @keyframes tickerMove {
   0% {
     transform: translateX(6%);
@@ -323,11 +406,6 @@ button {
     transform: scale(0.72);
     opacity: 0.62;
   }
-}
-
-.ghost {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 580px) {

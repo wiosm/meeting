@@ -1,6 +1,7 @@
 const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
+const titleFormatInput = document.getElementById('titleFormat');
 const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
 const webhookUrlInput = document.getElementById('meetWebhookUrl');
@@ -37,6 +38,32 @@ let leftCount = 0;
 let knownEventIds = new Set();
 let webhookPollId = null;
 let extensionPresenceActive = false;
+
+const formatTitle = (rawTitle, format) => {
+  const normalized = rawTitle
+    .split('\n')
+    .map((line) => line.trim())
+    .join('\n')
+    .trim();
+
+  if (!normalized) {
+    return 'Meeting Starts Soon';
+  }
+
+  if (format === 'uppercase') {
+    return normalized.toUpperCase();
+  }
+
+  if (format === 'titlecase') {
+    return normalized
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  return normalized;
+};
+
+const flattenTitle = (title) => title.replace(/\s*\n\s*/g, ' • ');
 
 const toMMSS = (secondsLeft) => {
   const mins = Math.floor(secondsLeft / 60)
@@ -302,9 +329,11 @@ const startWebhookPolling = (url, token) => {
 };
 
 const startCountdown = (meetingTitle, minutes, webhookUrl, webhookToken) => {
+  const oneLineTitle = flattenTitle(meetingTitle);
+
   waitingTitle.textContent = meetingTitle;
-  tickerText.textContent = `${meetingTitle} • Audio check • Camera check • Screen share ready`;
-  document.title = `${meetingTitle} · Waiting Screen`;
+  tickerText.textContent = `${oneLineTitle} • Audio check • Camera check • Screen share ready`;
+  document.title = `${oneLineTitle} · Waiting Screen`;
 
   configPanel.classList.add('hidden');
   waitingPanel.classList.remove('hidden');
@@ -324,14 +353,18 @@ const startCountdown = (meetingTitle, minutes, webhookUrl, webhookToken) => {
   void openFullscreen();
 };
 
-titleInput.addEventListener('input', () => {
-  titlePreview.textContent = titleInput.value.trim() || 'Meeting Starts Soon';
-});
+
+const updateTitlePreview = () => {
+  titlePreview.textContent = formatTitle(titleInput.value, titleFormatInput.value);
+};
+
+titleInput.addEventListener('input', updateTitlePreview);
+titleFormatInput.addEventListener('change', updateTitlePreview);
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  const meetingTitle = titleInput.value.trim() || 'Meeting Starts Soon';
+  const meetingTitle = formatTitle(titleInput.value, titleFormatInput.value);
   const minutes = Number.parseInt(minutesInput.value, 10);
   const webhookUrl = webhookUrlInput.value.trim();
   const webhookToken = webhookTokenInput.value.trim();
@@ -348,6 +381,7 @@ form.addEventListener('submit', (event) => {
 
 musicPresetInput.addEventListener('change', () => {
   syncSelectedAudio();
+updateTitlePreview();
 });
 
 musicInput.addEventListener('change', () => {
@@ -363,6 +397,7 @@ musicInput.addEventListener('change', () => {
   }
 
   syncSelectedAudio();
+updateTitlePreview();
 });
 
 window.addEventListener('beforeunload', () => {
@@ -377,3 +412,4 @@ window.addEventListener('beforeunload', () => {
 window.addEventListener('message', handleExtensionPresenceMessage);
 
 syncSelectedAudio();
+updateTitlePreview();

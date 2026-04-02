@@ -185,7 +185,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   border: 1px solid rgba(255, 255, 255, 0.24);
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
@@ -196,11 +197,23 @@ select {
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(80, 236, 255, 0.2);
 }
 
+
+textarea {
+  resize: vertical;
+  min-height: 5.5rem;
+  line-height: 1.35;
+}
+
+#titlePreview,
+.waiting-title {
+  white-space: pre-line;
+}
 button {
   border: none;
   border-radius: 12px;

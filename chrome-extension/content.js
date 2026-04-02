@@ -98,9 +98,12 @@ function startMeetActivityTracker() {
 function readParticipantNames() {
   const selectorGroups = [
     '[data-participant-id][aria-label]',
+    '[data-participant-id][data-participant-name]',
+    '[data-participant-id][data-name]',
     '[data-self-name]',
     '[role="listitem"] [aria-label]',
     '[data-participant-id] [data-name]',
+    '[data-participant-id] [data-participant-name]',
     '[role="listitem"] [data-name]',
     '[data-participant-id] [dir="auto"]',
     '[role="listitem"] [dir="auto"]',
@@ -121,13 +124,19 @@ function readParticipantNames() {
 
 function readNameFromElement(el) {
   const raw =
+    el.getAttribute('data-participant-name') ||
     el.getAttribute('data-name') ||
     el.getAttribute('data-self-name') ||
+    el.getAttribute('title') ||
     el.getAttribute('aria-label') ||
     el.textContent ||
     '';
 
-  return normalizeParticipantName(raw);
+  return normalizeParticipantName(extractPrimaryDisplayName(raw));
+}
+
+function extractPrimaryDisplayName(value) {
+  return String(value).split(/[\n,]/)[0].trim();
 }
 
 function normalizeParticipantName(value) {
@@ -145,7 +154,7 @@ function normalizeParticipantName(value) {
     return '';
   }
 
-  if (/^(meeting details|people|activities|settings|search|chat|raise hand)$/i.test(clean)) {
+  if (/^(meeting details|people|activities|settings|search|chat|raise hand|google meet|more options|present now)$/i.test(clean)) {
     return '';
   }
 

@@ -281,7 +281,7 @@ const resetPresence = () => {
   joinedCountEl.textContent = '0';
   leftCountEl.textContent = '0';
   presenceEvents.textContent = '';
-  presenceStatus.textContent = 'No event feed connected yet.';
+  presenceStatus.textContent = 'Waiting for extension or webhook events.';
 };
 
 const stopWebhookPolling = () => {
@@ -311,7 +311,11 @@ const handleExtensionPresenceMessage = (messageEvent) => {
 
 const setPresenceVisibility = (url) => {
   const hasWebhookUrl = Boolean(url);
-  presencePanel.classList.toggle('presence-hidden', !hasWebhookUrl);
+  presencePanel.classList.toggle('presence-hidden', false);
+
+  if (!hasWebhookUrl && !extensionPresenceActive) {
+    presenceStatus.textContent = 'Waiting for extension events. Keep Meet + waiting screen tabs open.';
+  }
 };
 
 const fetchWebhookEvents = async (url, token) => {
@@ -337,7 +341,7 @@ const startWebhookPolling = (url, token) => {
   setPresenceVisibility(url);
 
   if (!url) {
-    presenceStatus.textContent = 'No event feed connected yet.';
+    presenceStatus.textContent = 'Waiting for extension events. Keep Meet + waiting screen tabs open.';
     return;
   }
 

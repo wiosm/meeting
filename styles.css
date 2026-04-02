@@ -197,8 +197,45 @@ body[data-bg-theme='frost'] .grid-overlay {
   animation: scanlineSlide 8s linear infinite;
 }
 
+.prism-overlay {
+  position: absolute;
+  inset: -18%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.34;
+  background:
+    radial-gradient(circle at 15% 25%, rgba(125, 255, 230, 0.28), transparent 38%),
+    radial-gradient(circle at 78% 24%, rgba(255, 131, 228, 0.26), transparent 40%),
+    radial-gradient(circle at 52% 78%, rgba(117, 163, 255, 0.22), transparent 42%),
+    conic-gradient(
+      from 35deg at 50% 50%,
+      rgba(80, 236, 255, 0.12),
+      rgba(167, 113, 255, 0.08),
+      rgba(255, 77, 141, 0.12),
+      rgba(94, 255, 181, 0.1),
+      rgba(80, 236, 255, 0.12)
+    );
+  mix-blend-mode: screen;
+  filter: blur(12px) saturate(140%);
+  animation: prismShift 18s ease-in-out infinite alternate;
+}
+
 body[data-bg-theme='frost'] .scanline-overlay {
   opacity: 0.16;
+}
+
+body[data-bg-theme='sunset'] .prism-overlay {
+  opacity: 0.42;
+  filter: blur(10px) saturate(145%);
+}
+
+body[data-bg-theme='matrix'] .prism-overlay {
+  opacity: 0.3;
+  filter: blur(13px) saturate(125%);
+}
+
+body[data-bg-theme='frost'] .prism-overlay {
+  opacity: 0.36;
 }
 
 .aurora {
@@ -286,6 +323,18 @@ body[data-bg-theme='frost'] .aurora-b {
   }
   50% {
     transform: translate(-28px, 35px);
+  }
+}
+
+@keyframes prismShift {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(14deg) scale(1.06);
+  }
+  100% {
+    transform: rotate(-10deg) scale(1.02);
   }
 }
 
@@ -390,6 +439,19 @@ label {
   font-size: 1.04rem;
 }
 
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.checkbox-field input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+}
+
 .inline-help {
   margin: -0.3rem 0 0;
   color: var(--muted);
@@ -468,6 +530,18 @@ button {
   cursor: pointer;
 }
 
+.audio-preview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.preview-status {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .waiting-panel {
   text-align: center;
   display: grid;
@@ -522,6 +596,38 @@ button {
   padding: 1.35rem 1.25rem;
 }
 
+.in-progress-stage {
+  margin: 0.6rem 0 0.2rem;
+  width: min(88vw, 740px);
+  display: grid;
+  place-items: center;
+  gap: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(8px);
+  padding: 1.5rem 1.25rem;
+}
+
+.in-progress-spinner {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--accent);
+  border-right-color: var(--accent-2);
+  animation: spin 900ms linear infinite;
+}
+
+.in-progress-text {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e8eeff;
+}
+
 .timer {
   margin: 0;
   font-size: clamp(3.8rem, 13vw, 8.4rem);
@@ -564,6 +670,28 @@ button {
   animation: flipIn 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+body[data-visual-mode='gentle'] .colon,
+body[data-visual-mode='gentle'] .live-chip span,
+body[data-visual-mode='gentle'] .digit-change,
+body[data-visual-mode='gentle'] .ticker,
+body[data-visual-mode='gentle'] .scanline-overlay,
+body[data-visual-mode='gentle'] .sparkle-overlay,
+body[data-visual-mode='gentle'] .bg-motion-layer,
+body[data-visual-mode='gentle'] .liquid-bg,
+body[data-visual-mode='gentle'] .aurora,
+body[data-visual-mode='gentle'] .nebula-ring,
+body[data-visual-mode='gentle'] .prism-overlay,
+body[data-visual-mode='gentle'] .grid-overlay,
+body[data-visual-mode='gentle'] .in-progress-spinner {
+  animation: none !important;
+}
+
+body[data-visual-mode='gentle'] .scanline-overlay,
+body[data-visual-mode='gentle'] .sparkle-overlay,
+body[data-visual-mode='gentle'] .grid-overlay {
+  opacity: 0.08;
+}
+
 @keyframes flipIn {
   0% {
     transform: translateY(10px) rotateX(-76deg);
@@ -576,6 +704,12 @@ button {
   100% {
     transform: translateY(0) rotateX(0deg);
     filter: blur(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

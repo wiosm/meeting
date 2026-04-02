@@ -5,11 +5,16 @@ const hostInput = document.getElementById('meetingHost');
 const titleFormatInput = document.getElementById('titleFormat');
 const titleLineSizesInput = document.getElementById('titleLineSizes');
 const backgroundThemeInput = document.getElementById('backgroundTheme');
+const gentleVisualsInput = document.getElementById('gentleVisuals');
 const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
+const previewMusicBtn = document.getElementById('previewMusicBtn');
+const previewMusicStatus = document.getElementById('previewMusicStatus');
 const titlePreview = document.getElementById('titlePreview');
 const waitingTitle = document.getElementById('meetingTitleDisplay');
 const hostDisplay = document.getElementById('meetingHostDisplay');
+const countdownStage = document.getElementById('countdownStage');
+const inProgressStage = document.getElementById('inProgressStage');
 const countdownDisplay = document.getElementById('countdownDisplay');
 const barProgress = document.getElementById('barProgress');
 const configPanel = document.getElementById('configPanel');
@@ -28,6 +33,8 @@ const digitMap = {
   s1: countdownDisplay.querySelector('[data-digit="s1"]'),
   s2: countdownDisplay.querySelector('[data-digit="s2"]'),
 };
+const BACKGROUND_AUDIO_VOLUME = 0.8;
+const AUDIO_FADE_SECONDS = 12;
 
 let totalSeconds = 5 * 60;
 let endTime = null;
@@ -36,11 +43,13 @@ let lastRenderedTime = '05:00';
 let selectedAudioUrl = null;
 let localAudioUrl = null;
 let backgroundAudio = null;
+let previewAudio = null;
 let joinedCount = 0;
 let leftCount = 0;
 let knownEventIds = new Set();
 let extensionPresenceActive = false;
 let hasReceivedPresenceEvent = false;
+let inProgressShown = false;
 const musicLabelByUrl = new Map(
   Array.from(musicPresetInput.options)
     .filter((option) => option.value)
@@ -138,11 +147,97 @@ const setTimerDigits = (formattedTime) => {
 
 const syncSelectedAudio = () => {
   selectedAudioUrl = localAudioUrl || musicPresetInput.value || null;
+  updatePreviewStatus();
+};
+
+const updatePreviewStatus = () => {
+  if (!selectedAudioUrl) {
+    previewMusicStatus.textContent = 'No track selected.';
+    previewMusicBtn.textContent = 'Preview Music';
+    return;
+  }
+
+  const trackName = localAudioUrl ? 'Local upload' : musicLabelByUrl.get(selectedAudioUrl) || 'Selected track';
+  const isPlaying = Boolean(previewAudio && !previewAudio.paused);
+  previewMusicStatus.textContent = isPlaying ? `Previewing: ${trackName}` : `Selected: ${trackName}`;
+  previewMusicBtn.textContent = isPlaying ? 'Stop Preview' : 'Preview Music';
+};
+
+const showCountdownState = () => {
+  inProgressShown = false;
+  countdownStage.classList.remove('hidden');
+  inProgressStage.classList.add('hidden');
+};
+
+const showInProgressState = () => {
+  if (inProgressShown) {
+    return;
+  }
+  inProgressShown = true;
+  countdownStage.classList.add('hidden');
+  inProgressStage.classList.remove('hidden');
+};
+
+const stopPreviewAudio = () => {
+  if (!previewAudio) {
+    updatePreviewStatus();
+    return;
+  }
+  previewAudio.pause();
+  previewAudio.currentTime = 0;
+  previewAudio = null;
+  updatePreviewStatus();
+};
+
+const togglePreviewAudio = async () => {
+  if (!selectedAudioUrl) {
+    updatePreviewStatus();
+    return;
+  }
+
+  if (previewAudio && !previewAudio.paused) {
+    stopPreviewAudio();
+    return;
+  }
+
+  stopPreviewAudio();
+  const audio = new Audio(selectedAudioUrl);
+  audio.volume = 0.8;
+  previewAudio = audio;
+
+  audio.addEventListener('ended', () => {
+    previewAudio = null;
+    updatePreviewStatus();
+  });
+
+  try {
+    await audio.play();
+  } catch (error) {
+    console.warn('Music preview failed:', error);
+    previewMusicStatus.textContent = 'Preview blocked by browser. Click page and try again.';
+    previewAudio = null;
+    previewMusicBtn.textContent = 'Preview Music';
+    return;
+  }
+
+  updatePreviewStatus();
 };
 
 const setBarProgress = (secondsLeft) => {
   const elapsedRatio = totalSeconds > 0 ? (totalSeconds - secondsLeft) / totalSeconds : 1;
   barProgress.style.width = `${Math.max(0, Math.min(1, elapsedRatio)) * 100}%`;
+};
+
+const applyBackgroundAudioFade = (secondsLeft) => {
+  if (!backgroundAudio) {
+    return;
+  }
+  if (secondsLeft <= AUDIO_FADE_SECONDS) {
+    const ratio = Math.max(0, secondsLeft / AUDIO_FADE_SECONDS);
+    backgroundAudio.volume = BACKGROUND_AUDIO_VOLUME * ratio;
+    return;
+  }
+  backgroundAudio.volume = BACKGROUND_AUDIO_VOLUME;
 };
 
 const updateTimer = () => {
@@ -156,15 +251,16 @@ const updateTimer = () => {
   }
 
   setBarProgress(diff);
+  applyBackgroundAudioFade(diff);
 
   if (diff <= 0) {
     clearInterval(timerId);
     timerId = null;
     lastRenderedTime = '00:00';
-    setTimerDigits('00:00');
+    showInProgressState();
     stopBackgroundAudio();
     tickerText.textContent = 'You are live now • Meeting room should be ready • Let attendees in';
-    document.title = 'Meeting should begin now';
+    document.title = 'Meeting in progress';
   }
 };
 
@@ -186,7 +282,7 @@ const startBackgroundAudio = async () => {
 
   const audio = new Audio(selectedAudioUrl);
   audio.loop = true;
-  audio.volume = 0.8;
+  audio.volume = BACKGROUND_AUDIO_VOLUME;
   backgroundAudio = audio;
 
   try {
@@ -343,6 +439,10 @@ const applyBackgroundTheme = (themeName) => {
   document.body.dataset.bgTheme = nextTheme;
 };
 
+const applyVisualMode = (isGentle) => {
+  document.body.dataset.visualMode = isGentle ? 'gentle' : 'normal';
+};
+
 const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
   const oneLineTitle = flattenTitle(meetingTitle);
   const trackName = localAudioUrl ? 'Local upload' : musicLabelByUrl.get(selectedAudioUrl) || 'No music';
@@ -364,6 +464,7 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
 
   totalSeconds = minutes * 60;
   endTime = Date.now() + totalSeconds * 1000;
+  showCountdownState();
 
   setTimerDigits(toMMSS(totalSeconds));
   setBarProgress(totalSeconds);
@@ -371,6 +472,7 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
 
   clearInterval(timerId);
   timerId = setInterval(updateTimer, 250);
+  stopPreviewAudio();
   void startBackgroundAudio();
   setPresenceVisibility();
 
@@ -392,6 +494,9 @@ titleLineSizesInput.addEventListener('input', updateTitlePreview);
 backgroundThemeInput.addEventListener('change', () => {
   applyBackgroundTheme(backgroundThemeInput.value);
 });
+gentleVisualsInput.addEventListener('change', () => {
+  applyVisualMode(gentleVisualsInput.checked);
+});
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -412,6 +517,7 @@ form.addEventListener('submit', (event) => {
 });
 
 musicPresetInput.addEventListener('change', () => {
+  stopPreviewAudio();
   syncSelectedAudio();
   updateTitlePreview();
 });
@@ -428,12 +534,18 @@ musicInput.addEventListener('change', () => {
     localAudioUrl = URL.createObjectURL(selectedFile);
   }
 
+  stopPreviewAudio();
   syncSelectedAudio();
   updateTitlePreview();
 });
 
+previewMusicBtn.addEventListener('click', () => {
+  void togglePreviewAudio();
+});
+
 window.addEventListener('beforeunload', () => {
   stopBackgroundAudio();
+  stopPreviewAudio();
 
   if (localAudioUrl) {
     URL.revokeObjectURL(localAudioUrl);
@@ -444,4 +556,8 @@ window.addEventListener('message', handleExtensionPresenceMessage);
 
 syncSelectedAudio();
 applyBackgroundTheme(backgroundThemeInput.value);
+if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  gentleVisualsInput.checked = true;
+}
+applyVisualMode(gentleVisualsInput.checked);
 updateTitlePreview();

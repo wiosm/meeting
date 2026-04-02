@@ -18,12 +18,13 @@
       <div class="liquid-bg liquid-bg-a" aria-hidden="true"></div>
       <div class="liquid-bg liquid-bg-b" aria-hidden="true"></div>
       <div class="liquid-bg liquid-bg-c" aria-hidden="true"></div>
-      <div class="aurora aurora-a"></div>
-      <div class="aurora aurora-b"></div>
-      <div class="nebula-ring" aria-hidden="true"></div>
-      <div class="scanline-overlay" aria-hidden="true"></div>
-      <div class="sparkle-overlay" aria-hidden="true"></div>
-      <div class="grid-overlay" aria-hidden="true"></div>
+          <div class="aurora aurora-a"></div>
+          <div class="aurora aurora-b"></div>
+          <div class="nebula-ring" aria-hidden="true"></div>
+          <div class="prism-overlay" aria-hidden="true"></div>
+          <div class="scanline-overlay" aria-hidden="true"></div>
+          <div class="sparkle-overlay" aria-hidden="true"></div>
+          <div class="grid-overlay" aria-hidden="true"></div>
 
       <section class="panel config-panel" id="configPanel">
         <p class="eyebrow">Meeting Room</p>
@@ -61,7 +62,8 @@
               rows="3"
               placeholder="100&#10;75&#10;60"
             >100
-75</textarea>
+60
+60</textarea>
           </label>
 
           <label>
@@ -96,6 +98,11 @@
             </select>
           </label>
 
+          <label class="checkbox-field">
+            <input id="gentleVisuals" type="checkbox" checked />
+            Gentle visuals (reduce blinking)
+          </label>
+
           <label>
             Background music (built-in tracks)
             <select id="meetingMusicPreset">
@@ -122,6 +129,11 @@
             Or upload local music (mp3)
             <input id="meetingMusic" type="file" accept="audio/mpeg,audio/mp3" />
           </label>
+
+          <div class="audio-preview-controls">
+            <button id="previewMusicBtn" type="button">Preview Music</button>
+            <span id="previewMusicStatus" class="preview-status">No track selected.</span>
+          </div>
 
           <p class="inline-help">
             Use the included Chrome extension to push Meet participant updates directly to this page via
@@ -154,7 +166,7 @@
         <h2 id="meetingTitleDisplay" class="waiting-title">iOS Daily Standup</h2>
         <p id="meetingHostDisplay" class="host-pill hidden">Hosted by Alex Johnson</p>
 
-        <div class="countdown-stage">
+        <div class="countdown-stage" id="countdownStage">
           <p id="countdownDisplay" class="timer" aria-live="polite">
             <span class="digit" data-digit="m1">0</span>
             <span class="digit" data-digit="m2">5</span>
@@ -162,6 +174,11 @@
             <span class="digit" data-digit="s1">0</span>
             <span class="digit" data-digit="s2">0</span>
           </p>
+        </div>
+
+        <div id="inProgressStage" class="in-progress-stage hidden" aria-live="polite">
+          <span class="in-progress-spinner" aria-hidden="true"></span>
+          <p class="in-progress-text">Meeting in progress</p>
         </div>
 
         <div class="progress-bar-wrap" aria-hidden="true">

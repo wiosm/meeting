@@ -40,6 +40,11 @@ let leftCount = 0;
 let knownEventIds = new Set();
 let extensionPresenceActive = false;
 let hasReceivedPresenceEvent = false;
+const musicLabelByUrl = new Map(
+  Array.from(musicPresetInput.options)
+    .filter((option) => option.value)
+    .map((option) => [option.value, option.textContent.trim()]),
+);
 
 const formatTitle = (rawTitle, format) => {
   const normalized = rawTitle
@@ -332,6 +337,7 @@ const setPresenceVisibility = () => {
 };
 const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
   const oneLineTitle = flattenTitle(meetingTitle);
+  const trackName = localAudioUrl ? 'Local upload' : musicLabelByUrl.get(selectedAudioUrl) || 'No music';
 
   renderTitleWithSizes(waitingTitle, meetingTitle, lineSizes);
   if (hostName) {
@@ -342,7 +348,7 @@ const startCountdown = (meetingTitle, lineSizes, minutes, hostName) => {
     hostDisplay.textContent = '';
   }
 
-  tickerText.textContent = `${oneLineTitle} • Audio check • Camera check • Screen share ready`;
+  tickerText.textContent = `${oneLineTitle} • Track: ${trackName} • Audio check • Camera check • Screen share ready`;
   document.title = `${oneLineTitle} · Waiting Screen`;
 
   configPanel.classList.add('hidden');
@@ -428,8 +434,12 @@ window.addEventListener('message', handleExtensionPresenceMessage);
 window.addEventListener('pointermove', (event) => {
   const x = (event.clientX / window.innerWidth) * 100;
   const y = (event.clientY / window.innerHeight) * 100;
+  const driftX = ((x - 50) / 50) * 18;
+  const driftY = ((y - 50) / 50) * 14;
   document.body.style.setProperty('--mx', `${x.toFixed(1)}%`);
   document.body.style.setProperty('--my', `${y.toFixed(1)}%`);
+  document.body.style.setProperty('--drift-x', driftX.toFixed(2));
+  document.body.style.setProperty('--drift-y', driftY.toFixed(2));
 });
 
 syncSelectedAudio();

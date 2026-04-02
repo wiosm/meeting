@@ -10,6 +10,7 @@ const resetBtn = document.getElementById('resetBtn');
 
 let endTime = null;
 let timerId = null;
+let lastRenderedTime = countdownDisplay.textContent;
 
 const toMMSS = (secondsLeft) => {
   const mins = Math.floor(secondsLeft / 60)
@@ -24,12 +25,21 @@ const toMMSS = (secondsLeft) => {
 const updateTimer = () => {
   const now = Date.now();
   const diff = Math.max(0, Math.ceil((endTime - now) / 1000));
-  countdownDisplay.textContent = toMMSS(diff);
+  const nextDisplay = toMMSS(diff);
+
+  if (nextDisplay !== lastRenderedTime) {
+    countdownDisplay.textContent = nextDisplay;
+    countdownDisplay.classList.remove('timer-change');
+    void countdownDisplay.offsetWidth;
+    countdownDisplay.classList.add('timer-change');
+    lastRenderedTime = nextDisplay;
+  }
 
   if (diff <= 0) {
     clearInterval(timerId);
     timerId = null;
     countdownDisplay.textContent = '00:00';
+    lastRenderedTime = '00:00';
     document.title = 'Meeting should begin now';
   }
 };
@@ -68,6 +78,8 @@ const reset = () => {
   configPanel.classList.remove('hidden');
   waitingPanel.classList.add('hidden');
   countdownDisplay.textContent = '05:00';
+  countdownDisplay.classList.remove('timer-change');
+  lastRenderedTime = '05:00';
 };
 
 titleInput.addEventListener('input', () => {

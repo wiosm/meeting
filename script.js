@@ -2,6 +2,7 @@ const form = document.getElementById('configForm');
 const titleInput = document.getElementById('meetingTitle');
 const minutesInput = document.getElementById('meetingMinutes');
 const titleFormatInput = document.getElementById('titleFormat');
+const titleLineSizesInput = document.getElementById('titleLineSizes');
 const musicPresetInput = document.getElementById('meetingMusicPreset');
 const musicInput = document.getElementById('meetingMusic');
 const webhookUrlInput = document.getElementById('meetWebhookUrl');
@@ -64,6 +65,36 @@ const formatTitle = (rawTitle, format) => {
 };
 
 const flattenTitle = (title) => title.replace(/\s*\n\s*/g, ' • ');
+
+const parseLineSizes = (lineSizesText, lineCount) => {
+  const sizeRows = lineSizesText
+    .split('\n')
+    .map((value) => Number.parseInt(value.trim(), 10));
+
+  return Array.from({ length: lineCount }, (_, index) => {
+    const requestedSize = sizeRows[index];
+    if (!Number.isFinite(requestedSize)) {
+      return 100;
+    }
+    return Math.max(50, Math.min(180, requestedSize));
+  });
+};
+
+const renderTitleWithSizes = (target, formattedTitle, lineSizesText) => {
+  const lines = formattedTitle.split('\n').filter((line) => line.trim().length > 0);
+  const safeLines = lines.length ? lines : ['Meeting Starts Soon'];
+  const sizes = parseLineSizes(lineSizesText, safeLines.length);
+
+  target.innerHTML = '';
+
+  safeLines.forEach((line, index) => {
+    const lineEl = document.createElement('span');
+    lineEl.className = 'title-line';
+    lineEl.textContent = line;
+    lineEl.style.fontSize = `${sizes[index]}%`;
+    target.append(lineEl);
+  });
+};
 
 const toMMSS = (secondsLeft) => {
   const mins = Math.floor(secondsLeft / 60)
@@ -328,10 +359,10 @@ const startWebhookPolling = (url, token) => {
   }, 5000);
 };
 
-const startCountdown = (meetingTitle, minutes, webhookUrl, webhookToken) => {
+const startCountdown = (meetingTitle, lineSizes, minutes, webhookUrl, webhookToken) => {
   const oneLineTitle = flattenTitle(meetingTitle);
 
-  waitingTitle.textContent = meetingTitle;
+  renderTitleWithSizes(waitingTitle, meetingTitle, lineSizes);
   tickerText.textContent = `${oneLineTitle} • Audio check • Camera check • Screen share ready`;
   document.title = `${oneLineTitle} · Waiting Screen`;
 
@@ -355,16 +386,22 @@ const startCountdown = (meetingTitle, minutes, webhookUrl, webhookToken) => {
 
 
 const updateTitlePreview = () => {
-  titlePreview.textContent = formatTitle(titleInput.value, titleFormatInput.value);
+  renderTitleWithSizes(
+    titlePreview,
+    formatTitle(titleInput.value, titleFormatInput.value),
+    titleLineSizesInput.value,
+  );
 };
 
 titleInput.addEventListener('input', updateTitlePreview);
 titleFormatInput.addEventListener('change', updateTitlePreview);
+titleLineSizesInput.addEventListener('input', updateTitlePreview);
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
 
   const meetingTitle = formatTitle(titleInput.value, titleFormatInput.value);
+  const lineSizes = titleLineSizesInput.value;
   const minutes = Number.parseInt(minutesInput.value, 10);
   const webhookUrl = webhookUrlInput.value.trim();
   const webhookToken = webhookTokenInput.value.trim();
@@ -376,12 +413,12 @@ form.addEventListener('submit', (event) => {
 
   extensionPresenceActive = false;
   resetPresence();
-  startCountdown(meetingTitle, minutes, webhookUrl, webhookToken);
+  startCountdown(meetingTitle, lineSizes, minutes, webhookUrl, webhookToken);
 });
 
 musicPresetInput.addEventListener('change', () => {
   syncSelectedAudio();
-updateTitlePreview();
+  updateTitlePreview();
 });
 
 musicInput.addEventListener('change', () => {
@@ -397,7 +434,7 @@ musicInput.addEventListener('change', () => {
   }
 
   syncSelectedAudio();
-updateTitlePreview();
+  updateTitlePreview();
 });
 
 window.addEventListener('beforeunload', () => {

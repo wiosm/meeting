@@ -89,18 +89,6 @@
           </label>
 
           <label>
-            Status checklist ticker (one item per line)
-            <textarea
-              id="tickerChecklist"
-              rows="3"
-              maxlength="180"
-              placeholder="Audio check&#10;Camera check&#10;Screen share ready"
-            >Audio check
-Camera check
-Screen share ready</textarea>
-          </label>
-
-          <label>
             Animated background style
             <select id="backgroundTheme">
               <option value="nebula">Nebula Glow</option>
@@ -111,7 +99,7 @@ Screen share ready</textarea>
           </label>
 
           <label class="checkbox-field">
-            <input id="gentleVisuals" type="checkbox" checked />
+            <input id="gentleVisuals" type="checkbox" />
             Gentle visuals (reduce blinking)
           </label>
 
@@ -200,11 +188,6 @@ Screen share ready</textarea>
         <p class="ticker" id="tickerText">
           <span class="ticker-track" id="tickerTrack">Stream intro mode active • Audio check • Camera check • Screen share ready • Stream intro mode active • Audio check • Camera check • Screen share ready •</span>
         </p>
-
-        <section class="status-checklist-panel" aria-live="polite">
-          <p class="presence-title">Status checklist</p>
-          <ul id="statusChecklistDisplay" class="status-checklist-list"></ul>
-        </section>
 
         <section class="presence-panel" id="presencePanel" aria-live="polite">
           <p class="presence-title">Meet attendance activity</p>

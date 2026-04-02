@@ -22,6 +22,7 @@ const configPanel = document.getElementById('configPanel');
 const waitingPanel = document.getElementById('waitingPanel');
 const tickerText = document.getElementById('tickerText');
 const tickerTrack = document.getElementById('tickerTrack');
+const statusChecklistDisplay = document.getElementById('statusChecklistDisplay');
 const presenceStatus = document.getElementById('presenceStatus');
 const presenceEvents = document.getElementById('presenceEvents');
 const presencePeople = document.getElementById('presencePeople');
@@ -192,6 +193,17 @@ const setTickerMessage = (message) => {
   const normalized = message.trim();
   tickerText.setAttribute('aria-label', normalized);
   tickerTrack.textContent = `${normalized} • ${normalized} •`;
+};
+
+const renderStatusChecklist = (items) => {
+  statusChecklistDisplay.textContent = '';
+  const safeItems = items.length ? items : ['Audio check', 'Camera check', 'Screen share ready'];
+
+  safeItems.forEach((itemText) => {
+    const item = document.createElement('li');
+    item.textContent = itemText;
+    statusChecklistDisplay.append(item);
+  });
 };
 
 const stopPreviewAudio = () => {

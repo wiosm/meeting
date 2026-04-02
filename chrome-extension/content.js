@@ -1,16 +1,31 @@
-if (location.hostname === 'meet.google.com') {
-  startMeetActivityTracker();
-}
+const shouldTrackMeet = location.hostname === 'meet.google.com';
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message?.type === 'inject-window-post-message') {
-    window.postMessage(message.payload, message.targetOrigin || '*');
-    sendResponse({ ok: true });
-    return true;
+bootstrapMeetBridge();
+
+function bootstrapMeetBridge() {
+  if (window.__meetAttendanceBridgeInitialized) {
+    return;
   }
 
-  return false;
-});
+  window.__meetAttendanceBridgeInitialized = true;
+  registerRuntimeMessageBridge();
+
+  if (shouldTrackMeet) {
+    startMeetActivityTracker();
+  }
+}
+
+function registerRuntimeMessageBridge() {
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message?.type === 'inject-window-post-message') {
+      window.postMessage(message.payload, message.targetOrigin || '*');
+      sendResponse({ ok: true });
+      return true;
+    }
+
+    return false;
+  });
+}
 
 function isRuntimeAvailable() {
   return Boolean(chrome?.runtime?.id);
